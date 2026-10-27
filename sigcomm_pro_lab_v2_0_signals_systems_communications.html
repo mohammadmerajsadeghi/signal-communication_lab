@@ -1,0 +1,3064 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SigComm Pro Lab v2.0 — Ultimate Signals, Systems & Communications Interactive Workbench</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#040B16',
+                            900: '#071326',
+                            800: '#0B1D3A',
+                            700: '#122B54',
+                        },
+                        gold: {
+                            400: '#FFE033',
+                            500: '#FFD700',
+                            600: '#F59E0B',
+                        },
+                        cyan: {
+                            400: '#00E5FF',
+                            500: '#00B8D4',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-deep: #040B16;
+            --bg-card: #0B1D3A;
+            --gold: #FFD700;
+            --cyan: #00E5FF;
+        }
+        body {
+            background: radial-gradient(circle at 15% 10%, #0D254C 0%, #071326 50%, #030914 100%);
+            color: #F8FAFC;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(11, 29, 58, 0.72);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 215, 0, 0.20);
+            box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+        }
+        .glass-card-cyan {
+            background: rgba(8, 25, 52, 0.76);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            box-shadow: 0 10px 30px -5px rgba(0, 229, 255, 0.1);
+        }
+        .scope-screen {
+            background: radial-gradient(circle at center, #071936 0%, #020813 100%);
+            border: 1.5px solid rgba(255, 215, 0, 0.32);
+            box-shadow: inset 0 0 28px rgba(0, 229, 255, 0.12), 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .math-key {
+            background: linear-gradient(145deg, #102A52, #081833);
+            border: 1px solid rgba(255, 215, 0, 0.30);
+            transition: all 0.14s ease;
+            user-select: none;
+        }
+        .math-key:hover {
+            background: linear-gradient(145deg, #FFD700, #F59E0B);
+            color: #040B16;
+            transform: translateY(-1.5px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.35);
+            font-weight: 700;
+        }
+        .nav-pill.active {
+            background: linear-gradient(135deg, #FFD700 0%, #F59E0B 100%);
+            color: #040B16;
+            font-weight: 800;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.45);
+            border-color: #FFF;
+        }
+        .sub-pill.active {
+            background: linear-gradient(135deg, #00E5FF 0%, #00B8D4 100%);
+            color: #040B16;
+            font-weight: 800;
+            box-shadow: 0 0 16px rgba(0, 229, 255, 0.4);
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.14);
+            height: 6px;
+            border-radius: 4px;
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: #FFD700;
+            border: 2px solid #040B16;
+            cursor: pointer;
+            box-shadow: 0 0 8px #FFD700;
+            transition: transform 0.12s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #00E5FF;
+            box-shadow: 0 0 12px #00E5FF;
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #040B16; }
+        ::-webkit-scrollbar-thumb { background: #1E3A8A; border-radius: 4px; border: 1px solid rgba(255, 215, 0, 0.35); }
+        ::-webkit-scrollbar-thumb:hover { background: #FFD700; }
+        @keyframes pulseRing {
+            0%, 100% { box-shadow: 0 0 12px rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(0, 229, 255, 0.85); }
+        }
+        .audio-active-glow { animation: pulseRing 1.5s infinite; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-gold-500 selection:text-navy-950">
+
+    <!-- =========================================================================
+         STICKY TOP HEADER & GLOBAL WEB AUDIO SYNTHESIZER BAR
+         ========================================================================= -->
+    <header class="sticky top-0 z-50 glass-card border-b border-gold-500/30 px-4 py-2.5">
+        <div class="max-w-[1640px] mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Brand Identity -->
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-gold-500 to-amber-600 flex items-center justify-center text-navy-950 shadow-lg shadow-gold-500/25">
+                    <i class="fa-solid fa-wave-square text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-base md:text-lg font-black tracking-tight text-white">
+                            SigComm <span class="text-gold-500">Pro Lab</span> <span class="text-cyan-400 font-mono text-sm">v2.0</span>
+                        </h1>
+                        <span class="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider bg-gold-500/15 text-gold-400 border border-gold-500/40 rounded-md">
+                            IEEE / MIT Style Workbench
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-300">
+                        Interactive Signals, Systems, Transforms, Aliasing & Telecommunications Laboratory
+                    </p>
+                </div>
+            </div>
+
+            <!-- Global Quick Acoustic Tone Generator & Master Audio Status -->
+            <div class="flex flex-wrap items-center gap-2 bg-navy-950/90 px-3 py-1.5 rounded-xl border border-cyan-400/30">
+                <div class="flex items-center gap-2 pr-1">
+                    <span id="audioStatusDot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+                    <span id="audioStatusText" class="text-[11px] font-mono font-semibold text-slate-300">AUDIO STANDBY</span>
+                </div>
+                <div class="h-4 w-[1px] bg-slate-700 hidden sm:block"></div>
+                <span class="text-[11px] text-slate-400 hidden md:inline">Quick Listen:</span>
+                <button onclick="quickPlayTone(50, 'sine')" class="px-2.5 py-1 rounded-lg bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-[11px] font-mono font-bold text-gold-400 border border-gold-500/30 transition" title="Listen to 50 Hz Mains Hum">
+                    <i class="fa-solid fa-volume-high mr-1"></i>50Hz Hum
+                </button>
+                <button onclick="quickPlayTone(200, 'sawtooth')" class="px-2.5 py-1 rounded-lg bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-[11px] font-mono font-bold text-cyan-400 border border-cyan-400/30 transition" title="Listen to 200 Hz Rich Sawtooth">
+                    <i class="fa-solid fa-volume-high mr-1"></i>200Hz Saw
+                </button>
+                <button onclick="quickPlayTone(440, 'triangle')" class="px-2.5 py-1 rounded-lg bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-[11px] font-mono font-bold text-emerald-400 border border-emerald-400/30 transition" title="Listen to 440 Hz A4 Pitch">
+                    <i class="fa-solid fa-music mr-1"></i>440Hz A4
+                </button>
+                <button onclick="quickPlayTone(1000, 'square')" class="px-2.5 py-1 rounded-lg bg-navy-800 hover:bg-gold-500 hover:text-navy-950 text-[11px] font-mono font-bold text-purple-300 border border-purple-400/30 transition" title="Listen to 1 kHz Test Square Wave">
+                    <i class="fa-solid fa-wave-square mr-1"></i>1kHz Sq
+                </button>
+                <button onclick="stopAllAudio()" class="px-2.5 py-1 rounded-lg bg-rose-600/30 hover:bg-rose-600 text-rose-300 hover:text-white text-[11px] font-bold border border-rose-500/40 transition">
+                    <i class="fa-solid fa-stop mr-1"></i>Mute
+                </button>
+            </div>
+        </div>
+
+        <!-- Structured 6-Module Navigation Bar -->
+        <nav class="max-w-[1640px] mx-auto mt-2.5 pt-2 border-t border-white/10 flex items-center gap-2 overflow-x-auto pb-1">
+            <button onclick="switchTab('tab-synth')" id="btn-tab-synth" class="nav-pill active whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold border border-gold-500/30 bg-navy-800/80 text-slate-200 transition flex items-center gap-2">
+                <span class="px-1.5 py-0.2 rounded bg-navy-950/40 font-mono text-[10px]">01</span>
+                <i class="fa-solid fa-keyboard"></i>
+                <span>Signal Architect & Voice Synth</span>
+            </button>
+            <button onclick="switchTab('tab-fourier')" id="btn-tab-fourier" class="nav-pill whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold border border-gold-500/30 bg-navy-800/80 text-slate-200 transition flex items-center gap-2">
+                <span class="px-1.5 py-0.2 rounded bg-navy-950/40 font-mono text-[10px]">02</span>
+                <i class="fa-solid fa-circle-nodes"></i>
+                <span>Fourier Series, Epicycles & Gibbs</span>
+            </button>
+            <button onclick="switchTab('tab-laplace')" id="btn-tab-laplace" class="nav-pill whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold border border-gold-500/30 bg-navy-800/80 text-slate-200 transition flex items-center gap-2">
+                <span class="px-1.5 py-0.2 rounded bg-navy-950/40 font-mono text-[10px]">03</span>
+                <i class="fa-solid fa-compass-drafting"></i>
+                <span>Laplace (S) & Z-Transform Studio</span>
+            </button>
+            <button onclick="switchTab('tab-sampling')" id="btn-tab-sampling" class="nav-pill whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold border border-gold-500/30 bg-navy-800/80 text-slate-200 transition flex items-center gap-2">
+                <span class="px-1.5 py-0.2 rounded bg-cyan-400/20 text-cyan-300 font-mono text-[10px]">04 NEW</span>
+                <i class="fa-solid fa-microchip"></i>
+                <span>Sampling, Aliasing & PAM/PWM/PCM</span>
+            </button>
+            <button onclick="switchTab('tab-modulation')" id="btn-tab-modulation" class="nav-pill whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold border border-gold-500/30 bg-navy-800/80 text-slate-200 transition flex items-center gap-2">
+                <span class="px-1.5 py-0.2 rounded bg-navy-950/40 font-mono text-[10px]">05</span>
+                <i class="fa-solid fa-tower-broadcast"></i>
+                <span>Modulation Lab & Bandwidth Matrix</span>
+            </button>
+            <button onclick="switchTab('tab-filters')" id="btn-tab-filters" class="nav-pill whitespace-nowrap px-3.5 py-2 rounded-xl text-xs font-bold border border-gold-500/30 bg-navy-800/80 text-slate-200 transition flex items-center gap-2">
+                <span class="px-1.5 py-0.2 rounded bg-navy-950/40 font-mono text-[10px]">06</span>
+                <i class="fa-solid fa-filter"></i>
+                <span>Filter Designer (Bode) & Convolution</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- =========================================================================
+         MAIN WORKSPACE CONTAINER
+         ========================================================================= -->
+    <main class="flex-1 max-w-[1640px] w-full mx-auto p-4 md:p-6 space-y-6">
+
+        <!-- =====================================================================
+             MODULE 01: CUSTOM SIGNAL ARCHITECT, MATH KEYBOARD & VOICE SYNTHESIZER
+             ===================================================================== -->
+        <section id="tab-synth" class="tab-content space-y-5">
+            <!-- Quick Guide & Live Metrics Banner -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-gold-500 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded bg-gold-500 text-navy-950 font-mono font-black text-xs">MODULE 01</span>
+                        <h2 class="text-lg font-extrabold text-white">Custom Signal Architect, CTFT Analyzer & Real-Time Voice Synthesizer</h2>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-1">
+                        <strong>Quick Guide:</strong> Type any time-domain expression <code class="text-cyan-400">x(t)</code> or click the engineering keypad below. Inspect its Continuous-Time Fourier Transform <code class="text-gold-400">|X(f)|</code> and click <strong>Play Signal Audio</strong> to hear its exact acoustic timbre!
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="px-3 py-1.5 rounded-xl bg-navy-950/90 border border-gold-500/40 text-xs">
+                        <span class="text-slate-400">Total Energy <span class="font-mono text-gold-400">Eₓ</span>:</span>
+                        <span id="statEnergy" class="font-mono font-bold text-white ml-1">0.00</span> <span class="text-slate-400">J</span>
+                    </div>
+                    <div class="px-3 py-1.5 rounded-xl bg-navy-950/90 border border-cyan-400/40 text-xs">
+                        <span class="text-slate-400">Avg Power <span class="font-mono text-cyan-400">Pₓ</span>:</span>
+                        <span id="statPower" class="font-mono font-bold text-white ml-1">0.00</span> <span class="text-slate-400">W</span>
+                    </div>
+                    <div class="px-3 py-1.5 rounded-xl bg-navy-950/90 border border-emerald-400/40 text-xs">
+                        <span class="text-slate-400">RMS Value:</span>
+                        <span id="statRMS" class="font-mono font-bold text-white ml-1">0.00</span> <span class="text-slate-400">V</span>
+                    </div>
+                    <button onclick="toggleDrawer('drawer-mod1')" class="px-3 py-1.5 rounded-xl bg-gold-500/20 hover:bg-gold-500 text-gold-400 hover:text-navy-950 font-bold text-xs border border-gold-500/40 transition">
+                        <i class="fa-solid fa-book-open mr-1"></i>CTFT Cheat-Sheet
+                    </button>
+                </div>
+            </div>
+
+            <!-- Collapsible Formula Drawer -->
+            <div id="drawer-mod1" class="hidden glass-card-cyan rounded-2xl p-4 text-xs space-y-2 border border-cyan-400/40">
+                <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                    <span class="font-bold text-cyan-400 uppercase tracking-wider"><i class="fa-solid fa-graduation-cap mr-1"></i>Core Signals & CTFT Reference Formulas</span>
+                    <button onclick="toggleDrawer('drawer-mod1')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-[11px]">
+                    <div class="bg-navy-950/80 p-3 rounded-xl border border-white/10">
+                        <strong class="text-gold-400 block mb-1">Energy & Power Definitions:</strong>
+                        <div>Eₓ = ∫ |x(t)|² dt = ∫ |X(f)|² df (Parseval)</div>
+                        <div>Pₓ = lim(T→∞) (1/T) ∫ |x(t)|² dt</div>
+                    </div>
+                    <div class="bg-navy-950/80 p-3 rounded-xl border border-white/10">
+                        <strong class="text-cyan-400 block mb-1">Even & Odd Decomposition:</strong>
+                        <div>xₑ(t) = 0.5·[x(t) + x(-t)]  ⇒ Re{X(f)}</div>
+                        <div>xₒ(t) = 0.5·[x(t) - x(-t)]  ⇒ j·Im{X(f)}</div>
+                    </div>
+                    <div class="bg-navy-950/80 p-3 rounded-xl border border-white/10">
+                        <strong class="text-emerald-400 block mb-1">Key Transform Pairs:</strong>
+                        <div>rect(t/T) ⟷ T·sinc(f·T)</div>
+                        <div>tri(t/T)  ⟷ T·sinc²(f·T)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main 2-Column Workspace -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column: Formula Input, Categorized Keypad & Audio Synth (5 cols) -->
+                <div class="lg:col-span-5 space-y-5">
+                    <!-- Expression Builder Card -->
+                    <div class="glass-card rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-extrabold uppercase tracking-wider text-gold-400 flex items-center gap-2">
+                                <i class="fa-solid fa-square-root-variable"></i>
+                                Mathematical Expression <span class="font-mono text-cyan-400">x(t) =</span>
+                            </label>
+                            <button onclick="clearFormula()" class="text-xs text-rose-400 hover:text-rose-300 font-semibold">
+                                <i class="fa-solid fa-eraser mr-1"></i>Clear
+                            </button>
+                        </div>
+
+                        <div class="relative">
+                            <input id="customSignalInput" type="text"
+                                value="sin(2*pi*t) + 0.35*sin(6*pi*t)"
+                                oninput="updateCustomSignal()"
+                                class="w-full bg-navy-950 text-gold-400 font-mono text-sm md:text-base px-4 py-3 rounded-xl border-2 border-gold-500/50 focus:border-cyan-400 focus:outline-none shadow-inner pr-24"
+                                placeholder="e.g. sinc(4*t) * cos(10*pi*t)">
+                            <button onclick="updateCustomSignal()" class="absolute right-2 top-2 bottom-2 px-3.5 rounded-lg bg-gold-500 hover:bg-gold-400 text-navy-950 font-extrabold text-xs transition">
+                                Plot x(t)
+                            </button>
+                        </div>
+
+                        <!-- Curated Engineering Presets -->
+                        <div>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">1-Click Canonical Signal Presets:</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                                <button onclick="setPresetFormula('sin(2*pi*t)')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500 text-left transition">
+                                    <span class="text-gold-400 font-bold text-xs block">Pure Sine Wave</span>
+                                    <span class="font-mono text-[10px] text-slate-400">sin(2πt)</span>
+                                </button>
+                                <button onclick="setPresetFormula('square(2*pi*t)')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500 text-left transition">
+                                    <span class="text-cyan-400 font-bold text-xs block">Square Wave</span>
+                                    <span class="font-mono text-[10px] text-slate-400">sgn(sin(2πt))</span>
+                                </button>
+                                <button onclick="setPresetFormula('triangle(2*pi*t)')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500 text-left transition">
+                                    <span class="text-emerald-400 font-bold text-xs block">Triangle Wave</span>
+                                    <span class="font-mono text-[10px] text-slate-400">2/π arcsin(sin)</span>
+                                </button>
+                                <button onclick="setPresetFormula('sawtooth(2*pi*t)')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500 text-left transition">
+                                    <span class="text-amber-400 font-bold text-xs block">Sawtooth Wave</span>
+                                    <span class="font-mono text-[10px] text-slate-400">Linear Ramp</span>
+                                </button>
+                                <button onclick="setPresetFormula('sinc(4*t)')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500 text-left transition">
+                                    <span class="text-purple-400 font-bold text-xs block">Sinc Pulse</span>
+                                    <span class="font-mono text-[10px] text-slate-400">sin(4πt)/(4πt)</span>
+                                </button>
+                                <button onclick="setPresetFormula('exp(-1.5*abs(t))*cos(6*pi*t)')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500 text-left transition">
+                                    <span class="text-pink-400 font-bold text-xs block">Damped Cosine</span>
+                                    <span class="font-mono text-[10px] text-slate-400">e^(-1.5|t|)cos(6πt)</span>
+                                </button>
+                                <button onclick="setPresetFormula('rect(t)*cos(12*pi*t)')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500 text-left transition">
+                                    <span class="text-gold-400 font-bold text-xs block">RF Radar Burst</span>
+                                    <span class="font-mono text-[10px] text-slate-400">rect(t)cos(12πt)</span>
+                                </button>
+                                <button onclick="setPresetFormula('cos(2*pi*(2*t + 3*t*t))*u(t+1)')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500 text-left transition">
+                                    <span class="text-cyan-400 font-bold text-xs block">Linear FM Chirp</span>
+                                    <span class="font-mono text-[10px] text-slate-400">cos(2π(2t+3t²))</span>
+                                </button>
+                                <button onclick="setPresetFormula('exp(-4*t*t)*cos(10*pi*t)')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 hover:border-gold-500 text-left transition">
+                                    <span class="text-emerald-400 font-bold text-xs block">Gabor Wavelet</span>
+                                    <span class="font-mono text-[10px] text-slate-400">e^(-4t²)cos(10πt)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Dedicated On-Screen Engineering Math Keypad -->
+                        <div class="pt-2 border-t border-white/10">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-gold-400">
+                                    <i class="fa-solid fa-keyboard mr-1"></i>Dedicated Engineering Keypad:
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-mono">Click to Insert Token</span>
+                            </div>
+                            <div class="grid grid-cols-5 gap-1.5 font-mono">
+                                <button onclick="insertToken('sin(')" class="math-key py-1.5 rounded-lg text-xs text-gold-400">sin(</button>
+                                <button onclick="insertToken('cos(')" class="math-key py-1.5 rounded-lg text-xs text-gold-400">cos(</button>
+                                <button onclick="insertToken('sinc(')" class="math-key py-1.5 rounded-lg text-xs text-cyan-400">sinc(</button>
+                                <button onclick="insertToken('rect(')" class="math-key py-1.5 rounded-lg text-xs text-cyan-400" title="Unit Rectangular Pulse">rect(</button>
+                                <button onclick="insertToken('tri(')" class="math-key py-1.5 rounded-lg text-xs text-cyan-400" title="Unit Triangular Pulse">tri(</button>
+
+                                <button onclick="insertToken('u(')" class="math-key py-1.5 rounded-lg text-xs text-emerald-400" title="Heaviside Step u(t)">u(t)</button>
+                                <button onclick="insertToken('delta(')" class="math-key py-1.5 rounded-lg text-xs text-emerald-400" title="Dirac Impulse δ(t)">delta(</button>
+                                <button onclick="insertToken('sgn(')" class="math-key py-1.5 rounded-lg text-xs text-emerald-400" title="Signum Function">sgn(</button>
+                                <button onclick="insertToken('exp(')" class="math-key py-1.5 rounded-lg text-xs text-amber-400">exp(</button>
+                                <button onclick="insertToken('abs(')" class="math-key py-1.5 rounded-lg text-xs text-amber-400">abs(</button>
+
+                                <button onclick="insertToken('square(')" class="math-key py-1.5 rounded-lg text-xs text-purple-300">square(</button>
+                                <button onclick="insertToken('sawtooth(')" class="math-key py-1.5 rounded-lg text-xs text-purple-300">saw(</button>
+                                <button onclick="insertToken('triangle(')" class="math-key py-1.5 rounded-lg text-xs text-purple-300">triW(</button>
+                                <button onclick="insertToken('t')" class="math-key py-1.5 rounded-lg text-sm font-bold text-white bg-gold-500/20">t</button>
+                                <button onclick="insertToken('pi')" class="math-key py-1.5 rounded-lg text-sm font-bold text-gold-400">π</button>
+
+                                <button onclick="insertToken('+')" class="math-key py-1.5 rounded-lg text-sm text-white">+</button>
+                                <button onclick="insertToken('-')" class="math-key py-1.5 rounded-lg text-sm text-white">-</button>
+                                <button onclick="insertToken('*')" class="math-key py-1.5 rounded-lg text-sm text-white">*</button>
+                                <button onclick="insertToken('/')" class="math-key py-1.5 rounded-lg text-sm text-white">/</button>
+                                <button onclick="insertToken('^')" class="math-key py-1.5 rounded-lg text-sm text-white">^</button>
+
+                                <button onclick="insertToken('(')" class="math-key py-1.5 rounded-lg text-xs text-slate-300">(</button>
+                                <button onclick="insertToken(')')" class="math-key py-1.5 rounded-lg text-xs text-slate-300">)</button>
+                                <button onclick="insertToken('2*pi*t')" class="math-key py-1.5 rounded-lg text-xs text-gold-400 col-span-2">2*pi*t</button>
+                                <button onclick="backspaceToken()" class="math-key py-1.5 rounded-lg text-xs text-rose-400"><i class="fa-solid fa-delete-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Real-Time Signal-to-Voice Synthesizer Card -->
+                    <div class="glass-card-cyan rounded-2xl p-5 space-y-4 border-2 border-cyan-400/35">
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <h3 class="text-sm font-black text-cyan-400 uppercase tracking-wide flex items-center gap-2">
+                                    <i class="fa-solid fa-headphones"></i>
+                                    Signal-to-Voice Acoustic Synthesizer
+                                </h3>
+                                <p class="text-[11px] text-slate-300">
+                                    Synthesize and listen to 50 Hz, 200 Hz, or any wave in real time
+                                </p>
+                            </div>
+                            <button id="mainPlayAudioBtn" onclick="toggleCustomAudio()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-500 hover:from-gold-400 hover:to-amber-400 text-navy-950 font-black text-xs shadow-lg transition flex items-center gap-2">
+                                <i id="mainPlayIcon" class="fa-solid fa-play"></i>
+                                <span id="mainPlayText">Play Signal Audio</span>
+                            </button>
+                        </div>
+
+                        <!-- Fundamental Frequency Slider & Direct Preset Buttons -->
+                        <div class="bg-navy-950/80 p-3.5 rounded-xl border border-white/10 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-slate-300">Fundamental Pitch (<span class="font-mono text-gold-400">f₀</span>):</span>
+                                <span class="text-sm font-mono font-black text-gold-400"><span id="audioFreqVal">200</span> Hz</span>
+                            </div>
+                            <input id="audioFreqSlider" type="range" min="20" max="2000" step="1" value="200" oninput="updateAudioParams()" class="w-full">
+                            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                                <span class="text-[10px] text-slate-400 mr-1">Instant Pitch:</span>
+                                <button onclick="setAudioFreqAndPlay(50)" class="px-2 py-1 rounded bg-gold-500/20 hover:bg-gold-500 text-gold-300 hover:text-navy-950 text-[11px] font-mono font-bold border border-gold-500/40 transition">50 Hz (Mains)</button>
+                                <button onclick="setAudioFreqAndPlay(100)" class="px-2 py-1 rounded bg-navy-800 hover:bg-cyan-400 text-slate-200 hover:text-navy-950 text-[11px] font-mono font-bold border border-white/10 transition">100 Hz</button>
+                                <button onclick="setAudioFreqAndPlay(200)" class="px-2 py-1 rounded bg-cyan-400/20 hover:bg-cyan-400 text-cyan-300 hover:text-navy-950 text-[11px] font-mono font-bold border border-cyan-400/40 transition">200 Hz (Base)</button>
+                                <button onclick="setAudioFreqAndPlay(440)" class="px-2 py-1 rounded bg-navy-800 hover:bg-cyan-400 text-slate-200 hover:text-navy-950 text-[11px] font-mono font-bold border border-white/10 transition">440 Hz (A4)</button>
+                                <button onclick="setAudioFreqAndPlay(880)" class="px-2 py-1 rounded bg-navy-800 hover:bg-cyan-400 text-slate-200 hover:text-navy-950 text-[11px] font-mono font-bold border border-white/10 transition">880 Hz</button>
+                            </div>
+                        </div>
+
+                        <!-- Waveform Timbre Selector -->
+                        <div class="grid grid-cols-5 gap-1.5">
+                            <button onclick="selectAudioWaveMode('custom')" id="audiomode-custom" class="audio-mode-btn p-2 rounded-xl bg-gold-500 text-navy-950 font-bold text-[11px] border border-gold-400 text-center transition">
+                                Custom <span class="block text-[9px] font-mono">x(t) Synth</span>
+                            </button>
+                            <button onclick="selectAudioWaveMode('sine')" id="audiomode-sine" class="audio-mode-btn p-2 rounded-xl bg-navy-900 text-slate-200 font-bold text-[11px] border border-white/15 hover:border-gold-400 text-center transition">
+                                Sine <span class="block text-[9px] font-mono text-cyan-400">Pure</span>
+                            </button>
+                            <button onclick="selectAudioWaveMode('square')" id="audiomode-square" class="audio-mode-btn p-2 rounded-xl bg-navy-900 text-slate-200 font-bold text-[11px] border border-white/15 hover:border-gold-400 text-center transition">
+                                Square <span class="block text-[9px] font-mono text-cyan-400">Odd Harm</span>
+                            </button>
+                            <button onclick="selectAudioWaveMode('triangle')" id="audiomode-triangle" class="audio-mode-btn p-2 rounded-xl bg-navy-900 text-slate-200 font-bold text-[11px] border border-white/15 hover:border-gold-400 text-center transition">
+                                Triangle <span class="block text-[9px] font-mono text-cyan-400">Soft Odd</span>
+                            </button>
+                            <button onclick="selectAudioWaveMode('sawtooth')" id="audiomode-sawtooth" class="audio-mode-btn p-2 rounded-xl bg-navy-900 text-slate-200 font-bold text-[11px] border border-white/15 hover:border-gold-400 text-center transition">
+                                Sawtooth <span class="block text-[9px] font-mono text-cyan-400">All Harm</span>
+                            </button>
+                        </div>
+
+                        <!-- Volume & Time Scaling/Shifting -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="bg-navy-950/70 p-2.5 rounded-xl border border-white/10">
+                                <div class="flex justify-between text-[11px] mb-1">
+                                    <span class="text-slate-300">Master Gain:</span>
+                                    <span id="audioGainVal" class="font-mono text-gold-400">60%</span>
+                                </div>
+                                <input id="audioGainSlider" type="range" min="5" max="100" value="60" oninput="updateAudioParams()" class="w-full">
+                            </div>
+                            <div class="bg-navy-950/70 p-2.5 rounded-xl border border-white/10">
+                                <div class="flex justify-between text-[11px] mb-1">
+                                    <span class="text-slate-300">Scale & Shift <span class="font-mono">x(a·t - t₀)</span>:</span>
+                                    <span id="timeScaleVal" class="font-mono text-cyan-400">a=1.0, t₀=0.0</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input id="timeScaleA" type="range" min="0.2" max="3" step="0.1" value="1.0" oninput="updateCustomSignal()" title="Time Scaling a" class="w-1/2">
+                                    <input id="timeShiftT0" type="range" min="-2" max="2" step="0.1" value="0.0" oninput="updateCustomSignal()" title="Time Shift t0" class="w-1/2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: High-DPI Time & CTFT Spectrum Scopes (7 cols) -->
+                <div class="lg:col-span-7 space-y-5">
+                    <!-- Time Domain Oscilloscope -->
+                    <div class="glass-card rounded-2xl p-4 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-gold-500"></span>
+                                <h3 class="text-sm font-bold text-white">
+                                    Time-Domain Waveform <span class="font-mono text-gold-400 text-xs ml-1">x(t) & Even/Odd Decomposition</span>
+                                </h3>
+                            </div>
+                            <div class="flex items-center gap-4 text-xs">
+                                <label class="flex items-center gap-1.5 cursor-pointer text-cyan-300">
+                                    <input type="checkbox" id="showEvenPart" onchange="updateCustomSignal()" class="accent-cyan-400">
+                                    <span>Even Part <span class="font-mono">xₑ(t)</span></span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-pink-400">
+                                    <input type="checkbox" id="showOddPart" onchange="updateCustomSignal()" class="accent-pink-500">
+                                    <span>Odd Part <span class="font-mono">xₒ(t)</span></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[275px] w-full">
+                            <canvas id="canvasTimeSynth" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Frequency Domain CTFT Spectrum Analyzer -->
+                    <div class="glass-card rounded-2xl p-4 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                                <h3 class="text-sm font-bold text-white">
+                                    Continuous-Time Fourier Transform (CTFT) <span class="font-mono text-cyan-400 text-xs ml-1">|X(f)| Magnitude & ∠X(f) Phase</span>
+                                </h3>
+                            </div>
+                            <span class="text-[11px] text-slate-400 font-mono">High-Resolution 512-Bin Spectral Integrator</span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[255px] w-full">
+                            <canvas id="canvasFreqSynth" class="w-full h-full block"></canvas>
+                        </div>
+                        <div class="text-xs text-slate-300 bg-navy-950/80 p-3 rounded-xl border border-gold-500/20 flex items-start gap-2">
+                            <i class="fa-solid fa-lightbulb text-gold-400 mt-0.5"></i>
+                            <span>
+                                <strong>Acoustic & Spectral Intuition:</strong> A pure sine wave concentrates all energy at a single fundamental frequency spike, sounding warm and smooth. Switching to a Square or Sawtooth wave introduces high-frequency harmonics (<span class="font-mono text-cyan-400">3f₀, 5f₀, ...</span>) visible in the cyan spectrum above, producing a bright,uzzy acoustic timbre.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================================
+             MODULE 02: FOURIER SERIES, ROTATING EPICYCLES & GIBBS PHENOMENON
+             ===================================================================== -->
+        <section id="tab-fourier" class="tab-content hidden space-y-5">
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-cyan-400 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded bg-cyan-400 text-navy-950 font-mono font-black text-xs">MODULE 02</span>
+                        <h2 class="text-lg font-extrabold text-white">Fourier Series Synthesis, Rotating Phasor Epicycles & Gibbs Phenomenon</h2>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-1">
+                        <strong>Quick Guide:</strong> Watch how rotating complex exponential phasors <code class="text-gold-400">cₙ·e^(jnω₀t)</code> sum head-to-tail to construct discontinuous periodic waveforms, and listen to the harmonic series evolve!
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="playFourierSeriesAudio()" class="px-4 py-2 rounded-xl bg-gold-500 hover:bg-gold-400 text-navy-950 font-black text-xs shadow-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-ear-listen"></i>
+                        <span>Listen to Current N-Harmonic Sum</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Controls Column (4 cols) -->
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="glass-card rounded-2xl p-5 space-y-4">
+                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-gold-400">1. Select Target Periodic Waveform</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setFourierWave('square')" id="fw-square" class="fw-btn px-3 py-2.5 rounded-xl bg-gold-500 text-navy-950 font-bold text-xs border border-gold-400 transition">
+                                Square Wave
+                            </button>
+                            <button onclick="setFourierWave('sawtooth')" id="fw-sawtooth" class="fw-btn px-3 py-2.5 rounded-xl bg-navy-900 text-slate-200 font-bold text-xs border border-white/15 transition">
+                                Sawtooth Wave
+                            </button>
+                            <button onclick="setFourierWave('triangle')" id="fw-triangle" class="fw-btn px-3 py-2.5 rounded-xl bg-navy-900 text-slate-200 font-bold text-xs border border-white/15 transition">
+                                Triangle Wave
+                            </button>
+                            <button onclick="setFourierWave('rectified')" id="fw-rectified" class="fw-btn px-3 py-2.5 rounded-xl bg-navy-900 text-slate-200 font-bold text-xs border border-white/15 transition">
+                                Full-Wave Rectified
+                            </button>
+                        </div>
+
+                        <!-- Number of Harmonics N -->
+                        <div class="bg-navy-950/80 p-4 rounded-xl border border-gold-500/30 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-200">Number of Harmonics (<span class="font-mono text-gold-400">N</span>):</span>
+                                <span id="fourierNVal" class="px-2.5 py-0.5 rounded bg-gold-500 text-navy-950 font-mono font-black text-sm">5</span>
+                            </div>
+                            <input id="fourierNSlider" type="range" min="1" max="65" step="1" value="5" oninput="updateFourierParams()" class="w-full">
+                            <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                                <span>N=1 (Pure Fundamental)</span>
+                                <span>N=65 (~9% Gibbs Ears)</span>
+                            </div>
+                        </div>
+
+                        <!-- Rotation Speed -->
+                        <div class="bg-navy-950/80 p-3.5 rounded-xl border border-white/10 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-200">Phasor Angular Velocity (<span class="font-mono">ω₀</span>):</span>
+                                <span id="fourierSpeedVal" class="font-mono text-cyan-400 text-xs">1.0x</span>
+                            </div>
+                            <input id="fourierSpeedSlider" type="range" min="0.1" max="3.0" step="0.1" value="1.0" oninput="updateFourierParams()" class="w-full">
+                        </div>
+
+                        <!-- Trigonometric Expansion Display -->
+                        <div class="bg-navy-950 p-4 rounded-xl border border-cyan-400/30 space-y-2">
+                            <span class="text-[11px] font-bold uppercase text-cyan-400 block">Closed-Form Fourier Series Expansion:</span>
+                            <div id="fourierFormulaDisplay" class="text-xs text-gold-400 font-mono leading-relaxed overflow-x-auto py-1">
+                                x(t) = (4/π) ∑ [sin((2k-1)ω₀t) / (2k-1)]
+                            </div>
+                            <p id="fourierSymmetryNote" class="text-[11px] text-slate-300 leading-relaxed">
+                                Odd & half-wave symmetry: Contains only odd sine harmonics decaying as <span class="font-mono">1/n</span> due to jump discontinuities.
+                            </p>
+                        </div>
+
+                        <!-- Gibbs Phenomenon Callout -->
+                        <div class="bg-amber-500/10 p-3.5 rounded-xl border border-gold-500/40 text-xs text-slate-200 leading-relaxed">
+                            <strong class="text-gold-400 block mb-1"><i class="fa-solid fa-bolt mr-1"></i>Gibbs Phenomenon (~8.95% Overshoot):</strong>
+                            At any jump discontinuity, truncating the Fourier series produces ringing with a peak overshoot of <strong>~9% of the jump height</strong>. Increasing <span class="font-mono">N → ∞</span> compresses the ringing width toward zero, but the 9% peak height never disappears!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Epicycles Canvas + Harmonic Line Spectrum (8 cols) -->
+                <div class="lg:col-span-8 space-y-5">
+                    <div class="glass-card rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-gold-500"></span>
+                                Real-Time Rotating Phasor Epicycles & Waveform Reconstruction <span class="font-mono text-gold-400 text-xs">x_N(t)</span>
+                            </h3>
+                            <span class="text-xs font-mono text-cyan-400">Orthogonal Basis Projection</span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[325px] w-full">
+                            <canvas id="canvasFourierEpicycles" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                                Discrete Harmonic Magnitude Line Spectrum <span class="font-mono text-cyan-400 text-xs">|cₙ| vs. nω₀</span>
+                            </h3>
+                            <span id="parsevalPowerBadge" class="text-xs font-mono text-emerald-400 bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-400/30">
+                                Parseval Power Captured: 96.8%
+                            </span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[200px] w-full">
+                            <canvas id="canvasFourierSpectrum" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================================
+             MODULE 03: LAPLACE (S-PLANE) & Z-TRANSFORM POLE-ZERO STUDIO
+             ===================================================================== -->
+        <section id="tab-laplace" class="tab-content hidden space-y-5">
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-gold-500 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded bg-gold-500 text-navy-950 font-mono font-black text-xs">MODULE 03</span>
+                        <h2 class="text-lg font-extrabold text-white">Interactive Laplace (<span class="font-mono">S-Plane</span>) & Discrete <span class="font-mono">Z-Plane</span> Pole-Zero Studio</h2>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-1">
+                        <strong>Quick Guide:</strong> Drag Poles (<span class="text-rose-400 font-bold">×</span>) and Zeros (<span class="text-cyan-400 font-bold">○</span>) directly on the complex plane. Observe the shaded Region of Convergence (ROC), BIBO stability, impulse response <code class="text-gold-400">h(t)</code>, and frequency response <code class="text-cyan-400">|H(ω)|</code>.
+                    </p>
+                </div>
+                <div class="flex bg-navy-950 p-1 rounded-xl border border-gold-500/40">
+                    <button onclick="setPZDomain('s')" id="btnDomainS" class="px-4 py-2 rounded-lg bg-gold-500 text-navy-950 font-black text-xs transition">
+                        Continuous Laplace (S-Plane)
+                    </button>
+                    <button onclick="setPZDomain('z')" id="btnDomainZ" class="px-4 py-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs transition">
+                        Discrete Z-Transform (Z-Plane)
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Interactive Pole-Zero Map (5 cols) -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="glass-card rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span id="pzMapTitle" class="text-xs font-extrabold uppercase tracking-wider text-gold-400">Complex S-Plane (Drag Poles × & Zeros ○)</span>
+                            <div class="flex gap-1.5">
+                                <button onclick="addPoleZero('pole')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white text-xs font-bold border border-rose-500/40 transition">
+                                    + Add Pole (×)
+                                </button>
+                                <button onclick="addPoleZero('zero')" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-400 text-cyan-300 hover:text-navy-950 text-xs font-bold border border-cyan-400/40 transition">
+                                    + Add Zero (○)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="scope-screen rounded-xl overflow-hidden h-[350px] w-full cursor-grab active:cursor-grabbing">
+                            <canvas id="canvasPZMap" class="w-full h-full block"></canvas>
+                        </div>
+
+                        <!-- Live Stability & ROC Diagnosis Banner -->
+                        <div id="stabilityBanner" class="p-3 rounded-xl bg-emerald-950/80 border border-emerald-400/50 flex items-center justify-between">
+                            <div>
+                                <span id="stabilityTitle" class="text-xs font-black text-emerald-300 block">BIBO Stable & Causal System</span>
+                                <span id="rocDescription" class="text-[11px] text-slate-300 font-mono">ROC: Re(s) > -0.45 (Includes jω Axis)</span>
+                            </div>
+                            <button onclick="playImpulseAudio()" class="px-3 py-1.5 rounded-lg bg-gold-500 hover:bg-gold-400 text-navy-950 font-bold text-xs transition" title="Listen to the acoustic ring of h(t)">
+                                <i class="fa-solid fa-volume-high mr-1"></i>Ring h(t)
+                            </button>
+                        </div>
+
+                        <!-- System Presets -->
+                        <div>
+                            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">Canonical LTI System Presets:</span>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <button onclick="loadPZPreset('underdamped')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 text-left text-xs">
+                                    <span class="text-gold-400 font-bold block">2nd-Order Resonator</span>
+                                    <span class="text-[10px] text-slate-400">Underdamped LHP</span>
+                                </button>
+                                <button onclick="loadPZPreset('marginal')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 text-left text-xs">
+                                    <span class="text-cyan-400 font-bold block">Harmonic Oscillator</span>
+                                    <span class="text-[10px] text-slate-400">Poles on jω / |z|=1</span>
+                                </button>
+                                <button onclick="loadPZPreset('unstable')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 text-left text-xs">
+                                    <span class="text-rose-400 font-bold block">Unstable RHP System</span>
+                                    <span class="text-[10px] text-slate-400">Exponential Runaway</span>
+                                </button>
+                                <button onclick="loadPZPreset('allpass')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 text-left text-xs">
+                                    <span class="text-emerald-400 font-bold block">All-Pass Equalizer</span>
+                                    <span class="text-[10px] text-slate-400">|H(ω)| = Constant</span>
+                                </button>
+                                <button onclick="loadPZPreset('notch')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 text-left text-xs">
+                                    <span class="text-purple-400 font-bold block">50/60Hz Hum Notch</span>
+                                    <span class="text-[10px] text-slate-400">Zeros on jω Axis</span>
+                                </button>
+                                <button onclick="loadPZPreset('nonmin')" class="p-2 rounded-lg bg-navy-900 hover:bg-gold-500/20 border border-white/10 text-left text-xs">
+                                    <span class="text-amber-400 font-bold block">Non-Minimum Phase</span>
+                                    <span class="text-[10px] text-slate-400">RHP Zero Undershoot</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Impulse Response & Frequency Response (7 cols) -->
+                <div class="lg:col-span-7 space-y-5">
+                    <div class="glass-card rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-gold-500"></span>
+                                Time-Domain Impulse Response <span id="impulseLabel" class="font-mono text-gold-400 text-xs">h(t) = L⁻¹{H(s)}</span>
+                            </h3>
+                            <span class="text-xs font-mono text-cyan-300 bg-navy-950 px-3 py-1 rounded-lg border border-cyan-400/30">
+                                Causal ROC Selected
+                            </span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[240px] w-full">
+                            <canvas id="canvasPZImpulse" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                                Frequency Response Magnitude <span class="font-mono text-cyan-400 text-xs">|H(jω)| / |H(e^(jΩ))|</span>
+                            </h3>
+                            <span class="text-xs text-slate-400">Pole near boundary = Sharp Resonance Peak | Zero on boundary = Spectral Null</span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[240px] w-full">
+                            <canvas id="canvasPZFreq" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================================
+             MODULE 04 (NEW!): NYQUIST-SHANNON SAMPLING, ALIASING & PAM/PWM/PPM/PCM LAB
+             ===================================================================== -->
+        <section id="tab-sampling" class="tab-content hidden space-y-5">
+            <!-- Header & Sub-Module Switcher -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-cyan-400 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded bg-cyan-400 text-navy-950 font-mono font-black text-xs">MODULE 04 • NEW</span>
+                        <h2 class="text-lg font-extrabold text-white">Nyquist-Shannon Sampling, Spectral Aliasing & Pulse/PCM Quantization Lab</h2>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-1">
+                        <strong>Quick Guide:</strong> Switch between <strong>Part A (Spectral Aliasing & Acoustic Distortion)</strong> and <strong>Part B (PAM, PWM, PPM & Binary PCM Quantizer)</strong> using the buttons on the right.
+                    </p>
+                </div>
+                <div class="flex bg-navy-950 p-1 rounded-xl border border-cyan-400/40">
+                    <button onclick="switchSamplingSubTab('sub-aliasing')" id="btnSubAliasing" class="sub-pill active px-4 py-2 rounded-lg text-xs font-bold transition">
+                        Part A: Sampling & Spectral Aliasing (With Audio)
+                    </button>
+                    <button onclick="switchSamplingSubTab('sub-pcm')" id="btnSubPCM" class="sub-pill px-4 py-2 rounded-lg text-slate-300 hover:text-white text-xs font-bold transition">
+                        Part B: PAM / PWM / PPM & PCM Quantization
+                    </button>
+                </div>
+            </div>
+
+            <!-- SUB-TAB A: NYQUIST SAMPLING & ALIASING -->
+            <div id="sub-aliasing" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="glass-card rounded-2xl p-5 space-y-4">
+                        <h3 class="text-sm font-extrabold text-gold-400 uppercase tracking-wider">Sampling & Aliasing Parameters</h3>
+
+                        <!-- Input Signal Frequency f0 -->
+                        <div class="bg-navy-950/80 p-3.5 rounded-xl border border-white/10 space-y-1.5">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-200 font-bold">Signal Frequency (<span class="font-mono text-gold-400">f₀</span>):</span>
+                                <span id="sampF0Val" class="font-mono font-black text-gold-400">400 Hz</span>
+                            </div>
+                            <input id="sampF0Slider" type="range" min="100" max="1200" step="20" value="400" oninput="updateSamplingLab()" class="w-full">
+                        </div>
+
+                        <!-- Sampling Rate fs -->
+                        <div class="bg-navy-950/80 p-3.5 rounded-xl border border-cyan-400/30 space-y-1.5">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-200 font-bold">Sampling Rate (<span class="font-mono text-cyan-400">fₛ</span>):</span>
+                                <span id="sampFsVal" class="font-mono font-black text-cyan-400">1000 Hz</span>
+                            </div>
+                            <input id="sampFsSlider" type="range" min="200" max="2400" step="20" value="1000" oninput="updateSamplingLab()" class="w-full">
+                            <div class="flex gap-1.5 pt-1">
+                                <button onclick="setSamplingPreset(400, 1200)" class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold">Oversampled (fs=3f₀)</button>
+                                <button onclick="setSamplingPreset(400, 800)" class="px-2 py-1 rounded bg-gold-500/20 text-gold-300 border border-gold-500/40 text-[10px] font-mono font-bold">Nyquist Limit (fs=2f₀)</button>
+                                <button onclick="setSamplingPreset(700, 900)" class="px-2 py-1 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-mono font-bold">Severe Aliasing (fs&lt;2f₀)</button>
+                            </div>
+                        </div>
+
+                        <!-- Live Nyquist Status Box -->
+                        <div id="aliasingStatusCard" class="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-400/50 space-y-1">
+                            <div id="aliasingStatusTitle" class="text-xs font-black text-emerald-300">✅ NYQUIST CRITERION SATISFIED (fs ≥ 2f₀)</div>
+                            <div id="aliasingStatusDetail" class="text-[11px] font-mono text-slate-200">
+                                Nyquist Rate = 800 Hz | Reconstructed f_rec = 400 Hz (Exact!)
+                            </div>
+                        </div>
+
+                        <!-- Acoustic Aliasing Audition Panel -->
+                        <div class="glass-card-cyan rounded-xl p-4 space-y-3 border border-cyan-400/40">
+                            <h4 class="text-xs font-black text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-ear-listen"></i>
+                                Acoustic Aliasing Distortion Test
+                            </h4>
+                            <p class="text-[11px] text-slate-300 leading-relaxed">
+                                When <span class="font-mono text-rose-400">fₛ &lt; 2f₀</span>, high frequencies fold back into a false lower pitch <span class="font-mono text-gold-400">f_alias = |f₀ - k·fₛ|</span>. Compare the sounds below:
+                            </p>
+                            <div class="grid grid-cols-1 gap-2">
+                                <button onclick="playAliasingAudio('original')" class="w-full py-2 px-3 rounded-xl bg-navy-900 hover:bg-gold-500 text-gold-400 hover:text-navy-950 font-bold text-xs border border-gold-500/40 transition flex items-center justify-between">
+                                    <span>1. Play True Original Tone (<span id="btnOrigFreqTxt" class="font-mono">400 Hz</span>)</span>
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
+                                <button onclick="playAliasingAudio('aliased')" class="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-navy-950 font-black text-xs shadow transition flex items-center justify-between">
+                                    <span>2. Play Reconstructed / Aliased Tone (<span id="btnAliasFreqTxt" class="font-mono">400 Hz</span>)</span>
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <button onclick="playAliasingAudio('crackle')" class="w-full py-2 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white font-bold text-xs border border-rose-500/40 transition flex items-center justify-between">
+                                    <span>3. Hear Raw Sample-and-Hold Staircase Audio</span>
+                                    <i class="fa-solid fa-wave-square"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Scopes: Time Reconstruction + Spectral Replicas (8 cols) -->
+                <div class="lg:col-span-8 space-y-5">
+                    <div class="glass-card rounded-2xl p-4 space-y-2">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
+                            <h3 class="text-sm font-bold text-white">
+                                Time Domain: True Analog <span class="text-cyan-400 font-mono">x(t)</span>, Discrete Samples <span class="text-gold-400 font-mono">x[n]</span> & Reconstructed <span class="text-rose-400 font-mono">x̂(t)</span>
+                            </h3>
+                            <span class="text-xs font-mono text-slate-400">Sinc Interpolation Reconstruction</span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[250px] w-full">
+                            <canvas id="canvasSamplingTime" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-4 space-y-2">
+                        <div class="flex flex-wrap justify-between items-center gap-2">
+                            <h3 class="text-sm font-bold text-white">
+                                Frequency Domain: Periodic Spectral Replicas <span class="font-mono text-cyan-400">Xₛ(f) = (1/Tₛ) ∑ X(f - k·fₛ)</span> & Aliasing Overlap Zone
+                            </h3>
+                            <span class="text-xs font-mono text-gold-400">Ideal Reconstruction LPF Cutoff = fs/2</span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[250px] w-full">
+                            <canvas id="canvasSamplingSpectrum" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB B: PULSE MODULATION (PAM, PWM, PPM) & PCM QUANTIZATION -->
+            <div id="sub-pcm" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="glass-card rounded-2xl p-5 space-y-4">
+                        <h3 class="text-sm font-extrabold text-gold-400 uppercase tracking-wider">Pulse & PCM Quantizer Controls</h3>
+
+                        <!-- Quantizer Bit Depth B -->
+                        <div class="bg-navy-950/80 p-3.5 rounded-xl border border-gold-500/40 space-y-1.5">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-200 font-bold">PCM Bit Depth (<span class="font-mono text-gold-400">B</span> bits/sample):</span>
+                                <span id="pcmBitsVal" class="font-mono font-black text-gold-400">3 bits (8 Levels)</span>
+                            </div>
+                            <input id="pcmBitsSlider" type="range" min="1" max="6" step="1" value="3" oninput="updatePCMLab()" class="w-full">
+                        </div>
+
+                        <!-- Pulse Sampling Rate -->
+                        <div class="bg-navy-950/80 p-3.5 rounded-xl border border-white/10 space-y-1.5">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-200 font-bold">Pulse Repetition Rate (<span class="font-mono text-cyan-400">N_p</span>):</span>
+                                <span id="pcmPulseRateVal" class="font-mono font-black text-cyan-400">16 pulses/cycle</span>
+                            </div>
+                            <input id="pcmPulseRateSlider" type="range" min="8" max="32" step="2" value="16" oninput="updatePCMLab()" class="w-full">
+                        </div>
+
+                        <!-- SQNR & Bitstream Telemetry -->
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div class="bg-navy-950 p-3 rounded-xl border border-gold-500/30">
+                                <span class="text-[10px] text-slate-400 block">Theoretical SQNR:</span>
+                                <span id="pcmSqnrVal" class="text-base font-mono font-black text-gold-400">19.82 dB</span>
+                                <span class="text-[10px] text-slate-400 font-mono block">6.02·B + 1.76 dB</span>
+                            </div>
+                            <div class="bg-navy-950 p-3 rounded-xl border border-cyan-400/30">
+                                <span class="text-[10px] text-slate-400 block">Quantization Step Δ:</span>
+                                <span id="pcmStepVal" class="text-base font-mono font-black text-cyan-400">0.250 V</span>
+                                <span class="text-[10px] text-slate-400 font-mono block">2·V_max / 2^B</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Encoded Binary PCM Stream -->
+                        <div class="bg-navy-950 p-3.5 rounded-xl border border-emerald-400/30 space-y-1">
+                            <span class="text-[11px] font-bold text-emerald-400 block">Encoded Binary PCM Bitstream Output:</span>
+                            <div id="pcmBitstreamBox" class="font-mono text-xs text-white tracking-widest break-all leading-relaxed">
+                                100 110 111 110 100 001 000 001
+                            </div>
+                        </div>
+
+                        <!-- Listen to Quantization Noise Crackle -->
+                        <button onclick="playQuantizedAudio()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-gold-500 to-amber-500 hover:from-gold-400 hover:to-amber-400 text-navy-950 font-black text-xs shadow-lg transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-volume-high"></i>
+                            <span>Hear B-Bit Quantized Audio (Quantization Crackle!)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Scopes: PAM/PWM/PPM + PCM Staircase & Error (8 cols) -->
+                <div class="lg:col-span-8 space-y-5">
+                    <div class="glass-card rounded-2xl p-4 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-white">
+                                Uniform PCM Quantizer Staircase <span class="text-gold-400 font-mono">x_q(t)</span> vs. Analog Input <span class="text-cyan-400 font-mono">x(t)</span> & Error <span class="text-rose-400 font-mono">e_q(t)</span>
+                            </h3>
+                            <span class="text-xs font-mono text-slate-400">Mid-Riser Uniform ADC</span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[245px] w-full">
+                            <canvas id="canvasPCMQuant" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-4 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-white">
+                                Pulse Modulation Comparison: <span class="text-gold-400">Flat-Top PAM</span>, <span class="text-cyan-400">Pulse-Width (PWM)</span> & <span class="text-emerald-400">Pulse-Position (PPM)</span>
+                            </h3>
+                            <span class="text-xs font-mono text-slate-400">Synchronized Time-Division Waveforms</span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[255px] w-full">
+                            <canvas id="canvasPulseMod" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================================
+             MODULE 05: ANALOG & DIGITAL MODULATION LAB + BANDWIDTH MATRIX
+             ===================================================================== -->
+        <section id="tab-modulation" class="tab-content hidden space-y-5">
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-gold-500 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded bg-gold-500 text-navy-950 font-mono font-black text-xs">MODULE 05</span>
+                        <h2 class="text-lg font-extrabold text-white">Analog & Digital Modulation Workbench + Bandwidth Comparison Matrix</h2>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-1">
+                        <strong>Quick Guide:</strong> Select any modulation scheme below. Adjust modulation index (<code class="text-gold-400">μ / β</code>), carrier frequency, and channel SNR to inspect the RF waveform, passband spectrum, and IQ constellation.
+                    </p>
+                </div>
+                <button onclick="playModulatedAudio()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-navy-950 font-black text-xs shadow-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-tower-cell"></i>
+                    <span>Listen to Modulated Carrier Wave</span>
+                </button>
+            </div>
+
+            <!-- 9-Mode Modulation Selector Bar -->
+            <div class="glass-card rounded-2xl p-3.5">
+                <div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2">
+                    <button onclick="selectModulation('AM')" id="mod-AM" class="mod-btn active nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-gold-500/40 text-center">
+                        AM (DSB-LC) <span class="block text-[9px] font-mono opacity-80">Envelope</span>
+                    </button>
+                    <button onclick="selectModulation('DSB')" id="mod-DSB" class="mod-btn nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-white/15 bg-navy-900 text-center">
+                        DSB-SC <span class="block text-[9px] font-mono text-cyan-400">No Carrier</span>
+                    </button>
+                    <button onclick="selectModulation('SSB')" id="mod-SSB" class="mod-btn nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-white/15 bg-navy-900 text-center">
+                        SSB-SC <span class="block text-[9px] font-mono text-emerald-400">Min BW = W</span>
+                    </button>
+                    <button onclick="selectModulation('FM')" id="mod-FM" class="mod-btn nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-white/15 bg-navy-900 text-center">
+                        FM <span class="block text-[9px] font-mono text-gold-400">Carson Rule</span>
+                    </button>
+                    <button onclick="selectModulation('PM')" id="mod-PM" class="mod-btn nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-white/15 bg-navy-900 text-center">
+                        PM <span class="block text-[9px] font-mono text-amber-400">Phase Mod</span>
+                    </button>
+                    <button onclick="selectModulation('ASK')" id="mod-ASK" class="mod-btn nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-white/15 bg-navy-900 text-center">
+                        ASK / OOK <span class="block text-[9px] font-mono text-purple-400">Digital Amp</span>
+                    </button>
+                    <button onclick="selectModulation('BPSK')" id="mod-BPSK" class="mod-btn nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-white/15 bg-navy-900 text-center">
+                        BPSK <span class="block text-[9px] font-mono text-cyan-400">180° Shift</span>
+                    </button>
+                    <button onclick="selectModulation('FSK')" id="mod-FSK" class="mod-btn nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-white/15 bg-navy-900 text-center">
+                        BFSK <span class="block text-[9px] font-mono text-pink-400">Dual Tone</span>
+                    </button>
+                    <button onclick="selectModulation('QAM16')" id="mod-QAM16" class="mod-btn nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-white/15 bg-navy-900 text-center">
+                        16-QAM <span class="block text-[9px] font-mono text-emerald-400">4 bits/sym</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Parameters & Live Telemetry (4 cols) -->
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="glass-card rounded-2xl p-5 space-y-4">
+                        <h3 id="modTitleBox" class="text-sm font-black text-gold-400 uppercase">Standard Amplitude Modulation (AM - DSB-LC)</h3>
+                        <p id="modFormulaBox" class="text-xs font-mono text-cyan-300 bg-navy-950 p-2.5 rounded-xl border border-cyan-400/30">
+                            s(t) = Ac [1 + μ·m(t)] cos(2πfc·t)
+                        </p>
+
+                        <div class="space-y-3">
+                            <div class="bg-navy-950/70 p-3 rounded-xl border border-white/10">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-200 font-bold">Modulation Index (<span class="font-mono text-gold-400">μ</span> or <span class="font-mono text-gold-400">β</span>):</span>
+                                    <span id="modIndexVal" class="font-mono text-gold-400 font-bold">0.80</span>
+                                </div>
+                                <input id="modIndexSlider" type="range" min="0.1" max="2.5" step="0.05" value="0.8" oninput="updateModulation()" class="w-full">
+                                <span id="overmodWarning" class="hidden text-[11px] text-rose-400 font-bold mt-1 block">
+                                    ⚠️ Overmodulation Alert (μ > 100%): Envelope phase reversal! Simple diode detector distorts.
+                                </span>
+                            </div>
+
+                            <div class="bg-navy-950/70 p-3 rounded-xl border border-white/10">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-200 font-bold">Message Bandwidth (<span class="font-mono text-cyan-400">fₘ = W</span>):</span>
+                                    <span id="modFmVal" class="font-mono text-cyan-400 font-bold">10 kHz</span>
+                                </div>
+                                <input id="modFmSlider" type="range" min="2" max="30" step="1" value="10" oninput="updateModulation()" class="w-full">
+                            </div>
+
+                            <div class="bg-navy-950/70 p-3 rounded-xl border border-white/10">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-200 font-bold">Carrier Frequency (<span class="font-mono text-emerald-400">f_c</span>):</span>
+                                    <span id="modFcVal" class="font-mono text-emerald-400 font-bold">120 kHz</span>
+                                </div>
+                                <input id="modFcSlider" type="range" min="50" max="250" step="5" value="120" oninput="updateModulation()" class="w-full">
+                            </div>
+
+                            <div class="bg-navy-950/70 p-3 rounded-xl border border-white/10">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-200 font-bold">Channel AWGN (<span class="font-mono text-amber-400">SNR / EbN0</span>):</span>
+                                    <span id="modSnrVal" class="font-mono text-amber-400 font-bold">22 dB</span>
+                                </div>
+                                <input id="modSnrSlider" type="range" min="2" max="35" step="1" value="22" oninput="updateModulation()" class="w-full">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5 pt-1">
+                            <div class="bg-navy-950 p-3 rounded-xl border border-gold-500/30">
+                                <span class="text-[10px] text-slate-400 block">Transmission Bandwidth (<span class="font-mono">B_T</span>):</span>
+                                <span id="kpiBandwidth" class="text-base font-mono font-black text-gold-400">20.0 kHz</span>
+                            </div>
+                            <div class="bg-navy-950 p-3 rounded-xl border border-cyan-400/30">
+                                <span class="text-[10px] text-slate-400 block">Power / Spectral Efficiency:</span>
+                                <span id="kpiEfficiency" class="text-base font-mono font-black text-cyan-400">24.2%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Scopes: Modulated Wave + RF Spectrum + IQ Constellation (8 cols) -->
+                <div class="lg:col-span-8 space-y-5">
+                    <div class="glass-card rounded-2xl p-4 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-white">
+                                Baseband Message <span class="font-mono text-cyan-400">m(t)</span> (Dashed) & Modulated RF Carrier <span class="font-mono text-gold-400">s(t)</span>
+                            </h3>
+                            <span class="text-xs text-slate-400 font-mono">Time-Domain Envelope & Carrier</span>
+                        </div>
+                        <div class="scope-screen rounded-xl overflow-hidden h-[230px] w-full">
+                            <canvas id="canvasModTime" class="w-full h-full block"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                        <div class="md:col-span-7 glass-card rounded-2xl p-4 space-y-2">
+                            <h3 class="text-xs md:text-sm font-bold text-white">
+                                Passband RF Spectrum <span class="font-mono text-cyan-400">|S(f)| & Sidebands</span>
+                            </h3>
+                            <div class="scope-screen rounded-xl overflow-hidden h-[210px] w-full">
+                                <canvas id="canvasModSpectrum" class="w-full h-full block"></canvas>
+                            </div>
+                        </div>
+                        <div class="md:col-span-5 glass-card rounded-2xl p-4 space-y-2">
+                            <h3 class="text-xs md:text-sm font-bold text-white">
+                                Phasor / <span class="font-mono text-gold-400">I-Q Constellation</span> (With AWGN)
+                            </h3>
+                            <div class="scope-screen rounded-xl overflow-hidden h-[210px] w-full">
+                                <canvas id="canvasModConstellation" class="w-full h-full block"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Visual Bandwidth & Efficiency Comparison Matrix -->
+            <div class="glass-card rounded-2xl p-5 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <h3 class="text-base font-black text-gold-400 uppercase tracking-wide flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        Comprehensive Modulation Bandwidth, Power Efficiency & SNR Comparison Matrix
+                    </h3>
+                    <span class="text-xs text-cyan-400 font-mono">Baseband Message Bandwidth = W | Bit Rate = Rb</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-navy-950 text-gold-400 border-b border-gold-500/40 uppercase font-mono text-[11px]">
+                                <th class="p-3">Modulation Scheme</th>
+                                <th class="p-3">Transmission Bandwidth (B_T)</th>
+                                <th class="p-3">Power / Spectral Efficiency</th>
+                                <th class="p-3">Noise Immunity (SNR)</th>
+                                <th class="p-3">Receiver Complexity</th>
+                                <th class="p-3">Primary Engineering Applications</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/10 text-slate-200">
+                            <tr class="hover:bg-white/5">
+                                <td class="p-3 font-bold text-gold-400">AM (DSB-LC)</td>
+                                <td class="p-3 font-mono text-cyan-300">2·W</td>
+                                <td class="p-3">Low (<span class="font-mono">η = μ²/(2+μ²) ≤ 33.3%</span>)</td>
+                                <td class="p-3 text-rose-400">Low (Susceptible to AWGN)</td>
+                                <td class="p-3 text-emerald-400">Ultra-Low (Envelope Diode)</td>
+                                <td class="p-3">MW/SW AM Radio Broadcasting, VHF Aviation Voice</td>
+                            </tr>
+                            <tr class="hover:bg-white/5">
+                                <td class="p-3 font-bold text-cyan-400">DSB-SC</td>
+                                <td class="p-3 font-mono text-cyan-300">2·W</td>
+                                <td class="p-3 text-emerald-400">100% (Suppressed Carrier)</td>
+                                <td class="p-3">Moderate (Coherent Baseline)</td>
+                                <td class="p-3 text-amber-400">Medium (Costas Loop / PLL)</td>
+                                <td class="p-3">FM Stereo 38 kHz Subcarrier, Analog Color TV Quadrature</td>
+                            </tr>
+                            <tr class="hover:bg-white/5">
+                                <td class="p-3 font-bold text-emerald-400">SSB-SC (USB/LSB)</td>
+                                <td class="p-3 font-mono text-emerald-300">W (Minimum Possible!)</td>
+                                <td class="p-3 text-emerald-400">100% (Optimal Spectrum & Power)</td>
+                                <td class="p-3 text-emerald-400">High in Narrowband Channels</td>
+                                <td class="p-3 text-rose-400">High (Hilbert Phase / Crystal Filter)</td>
+                                <td class="p-3">Long-Range HF Military, Marine & Amateur Voice Comms</td>
+                            </tr>
+                            <tr class="hover:bg-white/5">
+                                <td class="p-3 font-bold text-purple-400">VSB (Vestigial)</td>
+                                <td class="p-3 font-mono text-purple-300">W + Δf (≈ 1.25·W)</td>
+                                <td class="p-3">High</td>
+                                <td class="p-3">Moderate-High</td>
+                                <td class="p-3 text-emerald-400">Medium (Asymmetric Nyquist Filter)</td>
+                                <td class="p-3">ATSC Digital Terrestrial TV (8-VSB) & Analog TV Video</td>
+                            </tr>
+                            <tr class="hover:bg-white/5">
+                                <td class="p-3 font-bold text-gold-400">Wideband FM (WBFM)</td>
+                                <td class="p-3 font-mono text-gold-300">2(Δf + W) = 2(β + 1)W (Carson)</td>
+                                <td class="p-3 text-emerald-400">100% (Constant Envelope Class-C PA)</td>
+                                <td class="p-3 text-emerald-400">Superior (<span class="font-mono">SNR_out ∝ 3β²</span>)</td>
+                                <td class="p-3 text-amber-400">Medium (Limiter + Discriminator)</td>
+                                <td class="p-3">Hi-Fi VHF FM Broadcast (88–108 MHz), Satellite Telemetry</td>
+                            </tr>
+                            <tr class="hover:bg-white/5">
+                                <td class="p-3 font-bold text-cyan-400">BPSK / QPSK</td>
+                                <td class="p-3 font-mono text-cyan-300">2·Rb (BPSK) | Rb (QPSK)</td>
+                                <td class="p-3">1 to 2 bps/Hz</td>
+                                <td class="p-3 text-emerald-400">Best BER at Low Eb/N0</td>
+                                <td class="p-3 text-amber-400">Medium (Coherent Carrier Recovery)</td>
+                                <td class="p-3">Deep Space Probes, GPS, DVB-S2 Satellite, 5G Control Links</td>
+                            </tr>
+                            <tr class="hover:bg-white/5">
+                                <td class="p-3 font-bold text-pink-400">16-QAM / 64-QAM</td>
+                                <td class="p-3 font-mono text-pink-300">2·Rb / log₂(M) (Ultra-Compact)</td>
+                                <td class="p-3 text-emerald-400">4 to 6 bps/Hz</td>
+                                <td class="p-3 text-rose-400">Requires High SNR & Linear PA</td>
+                                <td class="p-3 text-rose-400">High (AGC + Equalizer + Carrier Sync)</td>
+                                <td class="p-3">Wi-Fi 6/7, 4G LTE / 5G NR OFDM, DOCSIS Cable, Coherent Optics</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================================
+             MODULE 06: FILTER DESIGN STUDIO (BODE + LIVE AUDIO) & CONVOLUTION
+             ===================================================================== -->
+        <section id="tab-filters" class="tab-content hidden space-y-5">
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-gold-500 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded bg-gold-500 text-navy-950 font-mono font-black text-xs">MODULE 06</span>
+                        <h2 class="text-lg font-extrabold text-white">Filter Design Studio (Bode Plots + Live Audio Filter) & Graphical Convolution</h2>
+                    </div>
+                    <p class="text-xs text-slate-300 mt-1">
+                        <strong>Quick Guide:</strong> Left: Design Butterworth/Chebyshev filters and test them on live audio! Right: Slide time <code class="text-gold-400">t</code> to watch step-by-step graphical convolution <code class="text-cyan-400">y(t) = ∫ x(τ)h(t-τ)dτ</code>.
+                    </p>
+                </div>
+                <button onclick="toggleLiveFilterAudio()" id="btnLiveFilterAudio" class="px-4 py-2 rounded-xl bg-gradient-to-r from-gold-500 to-amber-500 text-navy-950 font-black text-xs shadow-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Test Filter on Live Multi-Tone Audio!</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Filter Designer & Bode Magnitude/Phase (6 cols) -->
+                <div class="lg:col-span-6 glass-card rounded-2xl p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <div>
+                            <h3 class="text-base font-black text-gold-400">Analog & Digital Filter Bode Analyzer</h3>
+                            <p class="text-[11px] text-slate-300">Compare Butterworth (Maximally Flat), Chebyshev I (Equiripple) & Ideal Brickwall</p>
+                        </div>
+                        <span id="filterSlopeBadge" class="px-3 py-1 rounded-lg bg-gold-500/20 border border-gold-500/40 text-gold-400 font-mono text-xs font-bold">
+                            Roll-off: -80 dB/dec
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setFilterType('LPF')" id="flt-LPF" class="flt-btn px-3 py-2 rounded-xl bg-gold-500 text-navy-950 font-bold text-xs">
+                            Low-Pass (LPF)
+                        </button>
+                        <button onclick="setFilterType('HPF')" id="flt-HPF" class="flt-btn px-3 py-2 rounded-xl bg-navy-900 text-slate-200 font-bold text-xs border border-white/15">
+                            High-Pass (HPF)
+                        </button>
+                        <button onclick="setFilterType('BPF')" id="flt-BPF" class="flt-btn px-3 py-2 rounded-xl bg-navy-900 text-slate-200 font-bold text-xs border border-white/15">
+                            Band-Pass (BPF)
+                        </button>
+                        <button onclick="setFilterType('BSF')" id="flt-BSF" class="flt-btn px-3 py-2 rounded-xl bg-navy-900 text-slate-200 font-bold text-xs border border-white/15">
+                            Notch (BSF)
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-navy-950/70 p-3 rounded-xl border border-white/10">
+                            <span class="text-[11px] text-slate-300 block mb-1">Approximation Family:</span>
+                            <select id="filterApproxSelect" onchange="updateFilterPlot()" class="w-full bg-navy-900 text-gold-400 text-xs font-bold p-2 rounded-lg border border-gold-500/40 outline-none">
+                                <option value="butterworth">Butterworth (Flat)</option>
+                                <option value="chebyshev">Chebyshev Type I</option>
+                                <option value="ideal">Ideal Brickwall (Sinc)</option>
+                            </select>
+                        </div>
+                        <div class="bg-navy-950/70 p-3 rounded-xl border border-white/10">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Filter Order (<span class="font-mono">N</span>):</span>
+                                <span id="filterOrderVal" class="font-mono text-gold-400 font-bold">4</span>
+                            </div>
+                            <input id="filterOrderSlider" type="range" min="1" max="10" value="4" oninput="updateFilterPlot()" class="w-full">
+                        </div>
+                        <div class="bg-navy-950/70 p-3 rounded-xl border border-white/10">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300">Cutoff (<span class="font-mono">f_c</span>):</span>
+                                <span id="filterCutoffVal" class="font-mono text-cyan-400 font-bold">600 Hz</span>
+                            </div>
+                            <input id="filterCutoffSlider" type="range" min="100" max="2200" step="50" value="600" oninput="updateFilterPlot()" class="w-full">
+                        </div>
+                    </div>
+
+                    <div class="scope-screen rounded-xl overflow-hidden h-[310px] w-full">
+                        <canvas id="canvasBodePlot" class="w-full h-full block"></canvas>
+                    </div>
+
+                    <div class="text-xs text-slate-300 bg-navy-950/80 p-3 rounded-xl border border-cyan-400/20">
+                        <strong class="text-cyan-400">Engineering Rule of Thumb:</strong> Each filter pole adds <span class="font-mono text-gold-400">-20 dB/decade</span> (<span class="font-mono">-6 dB/octave</span>) of stopband attenuation. Click <strong>"Test Filter on Live Multi-Tone Audio"</strong> above and drag the <span class="font-mono">f_c</span> slider to hear high or low frequencies get filtered out in real time!
+                    </div>
+                </div>
+
+                <!-- Right: Interactive Sliding Convolution Engine (6 cols) -->
+                <div class="lg:col-span-6 glass-card rounded-2xl p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <div>
+                            <h3 class="text-base font-black text-cyan-400">Step-by-Step Visual Convolution <span class="font-mono text-gold-400 text-sm">y(t) = x(τ) * h(t - τ)</span></h3>
+                            <p class="text-[11px] text-slate-300">1. Fold <span class="font-mono">h(-τ)</span> → 2. Shift by <span class="font-mono">t</span> → 3. Multiply Overlap → 4. Integrate Area</p>
+                        </div>
+                        <button onclick="toggleConvAutoPlay()" id="btnConvPlay" class="px-3.5 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-navy-950 font-black text-xs transition">
+                            <i class="fa-solid fa-play mr-1"></i>Auto-Slide t
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-navy-950/70 p-3 rounded-xl border border-white/10">
+                            <span class="text-[11px] text-slate-300 block mb-1">Select Signal Pair <span class="font-mono">x(t) * h(t)</span>:</span>
+                            <select id="convPairSelect" onchange="updateConvolution()" class="w-full bg-navy-900 text-cyan-400 text-xs font-bold p-2 rounded-lg border border-cyan-400/40 outline-none">
+                                <option value="rect_rect">Rect(t) * Rect(t) = Triangle Pulse</option>
+                                <option value="exp_step">Unit Step u(t) * Exponential Decay = RC Step Charge</option>
+                                <option value="rect_exp">Rect Pulse * Exponential Impulse Response</option>
+                                <option value="tri_rect">Triangle Pulse * Rect Pulse = Smooth Bell Curve</option>
+                            </select>
+                        </div>
+                        <div class="bg-navy-950/70 p-3 rounded-xl border border-gold-500/40">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gold-400 font-bold">Time-Shift Cursor (<span class="font-mono">t</span>):</span>
+                                <span id="convTimeVal" class="font-mono text-white font-black">t = 0.25 s</span>
+                            </div>
+                            <input id="convTimeSlider" type="range" min="-3.0" max="3.5" step="0.05" value="0.25" oninput="updateConvolution()" class="w-full">
+                        </div>
+                    </div>
+
+                    <div class="scope-screen rounded-xl overflow-hidden h-[310px] w-full">
+                        <canvas id="canvasConvolution" class="w-full h-full block"></canvas>
+                    </div>
+
+                    <div class="text-xs text-slate-300 bg-navy-950/80 p-3 rounded-xl border border-gold-500/20">
+                        <strong class="text-gold-400">Exam Shortcut (&lt;30s Rule):</strong> For any two finite signals, the convolution support width is the sum of widths (<span class="font-mono text-cyan-400">T_y = T_x + T_h</span>) and the total area is the product of areas (<span class="font-mono text-cyan-400">Area(y) = Area(x) × Area(h)</span>).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="glass-card border-t border-gold-500/20 py-3.5 px-6 text-xs text-slate-400 mt-auto">
+        <div class="max-w-[1640px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span><strong>SigComm Pro Lab v2.0</strong> — Interactive Signals, Systems & Telecommunications Engineering Suite</span>
+            <span class="font-mono text-gold-400">Powered by Real-Time Web Audio Synthesizer & High-DPI HTML5 Canvas</span>
+        </div>
+    </footer>
+
+    <!-- =========================================================================
+         MASTER JAVASCRIPT ENGINE
+         ========================================================================= -->
+    <script>
+        /* =====================================================================
+           GLOBAL NAVIGATION & DRAWER CONTROLS
+           ===================================================================== */
+        let activeTab = 'tab-synth';
+        let activeSamplingSubTab = 'sub-aliasing';
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-pill').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            setTimeout(() => {
+                if (tabId === 'tab-synth') updateCustomSignal();
+                if (tabId === 'tab-fourier') drawFourierSpectrum();
+                if (tabId === 'tab-laplace') updatePZAll();
+                if (tabId === 'tab-sampling') {
+                    updateSamplingLab();
+                    updatePCMLab();
+                }
+                if (tabId === 'tab-modulation') updateModulation();
+                if (tabId === 'tab-filters') {
+                    updateFilterPlot();
+                    updateConvolution();
+                }
+            }, 30);
+        }
+
+        function switchSamplingSubTab(subId) {
+            activeSamplingSubTab = subId;
+            document.getElementById('sub-aliasing').classList.toggle('hidden', subId !== 'sub-aliasing');
+            document.getElementById('sub-pcm').classList.toggle('hidden', subId !== 'sub-pcm');
+
+            const b1 = document.getElementById('btnSubAliasing');
+            const b2 = document.getElementById('btnSubPCM');
+            if (subId === 'sub-aliasing') {
+                b1.className = 'sub-pill active px-4 py-2 rounded-lg text-xs font-bold transition';
+                b2.className = 'sub-pill px-4 py-2 rounded-lg text-slate-300 hover:text-white text-xs font-bold transition';
+                setTimeout(updateSamplingLab, 20);
+            } else {
+                b2.className = 'sub-pill active px-4 py-2 rounded-lg text-xs font-bold transition';
+                b1.className = 'sub-pill px-4 py-2 rounded-lg text-slate-300 hover:text-white text-xs font-bold transition';
+                setTimeout(updatePCMLab, 20);
+            }
+        }
+
+        function toggleDrawer(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('hidden');
+        }
+
+        /* =====================================================================
+           CANVAS HIGH-DPI UTILITY & OSCILLOSCOPE GRID
+           ===================================================================== */
+        function setupCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const w = Math.max(rect.width, 280);
+            const h = Math.max(rect.height, 160);
+            if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+                canvas.width = Math.round(w * dpr);
+                canvas.height = Math.round(h * dpr);
+            }
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            return { ctx, w, h, canvas };
+        }
+
+        function drawScopeGrid(ctx, w, h, centerX = w / 2, centerY = h / 2) {
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = 'rgba(0, 229, 255, 0.08)';
+            ctx.lineWidth = 1;
+            const step = 40;
+            for (let x = centerX % step; x < w; x += step) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = centerY % step; y < h; y += step) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+            ctx.strokeStyle = 'rgba(255, 215, 0, 0.32)';
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY); ctx.lineTo(w, centerY);
+            ctx.moveTo(centerX, 0); ctx.lineTo(centerX, h);
+            ctx.stroke();
+        }
+
+        /* =====================================================================
+           MATHEMATICAL EXPRESSION PARSER & KEYPAD
+           ===================================================================== */
+        function uStep(x) { return x >= 0 ? 1.0 : 0.0; }
+        function diracDelta(x) { return Math.exp(-(x * x) / 0.0018); }
+        function rectPulse(x) { return Math.abs(x) <= 0.5 ? 1.0 : 0.0; }
+        function triPulse(x) { return Math.abs(x) <= 1.0 ? (1.0 - Math.abs(x)) : 0.0; }
+        function sincFunc(x) {
+            if (Math.abs(x) < 1e-6) return 1.0;
+            return Math.sin(Math.PI * x) / (Math.PI * x);
+        }
+        function squareWave(rad) { return Math.sin(rad) >= 0 ? 1.0 : -1.0; }
+        function triangleWave(rad) { return (2 / Math.PI) * Math.asin(Math.sin(rad)); }
+        function sawtoothWave(rad) {
+            const norm = rad / (2 * Math.PI);
+            return 2 * (norm - Math.floor(norm + 0.5));
+        }
+
+        function compileSignalExpression(exprStr) {
+            let clean = (exprStr || '0').trim();
+            let jsExpr = clean
+                .replace(/π/g, 'Math.PI')
+                .replace(/\bpi\b/gi, 'Math.PI')
+                .replace(/\bsinc\s*\(/gi, 'sincFunc(')
+                .replace(/\brect\s*\(/gi, 'rectPulse(')
+                .replace(/\btri\s*\(/gi, 'triPulse(')
+                .replace(/\bsquare\s*\(/gi, 'squareWave(')
+                .replace(/\btriangle\s*\(/gi, 'triangleWave(')
+                .replace(/\bsawtooth\s*\(/gi, 'sawtoothWave(')
+                .replace(/\bu\s*\(/gi, 'uStep(')
+                .replace(/\bdelta\s*\(/gi, 'diracDelta(')
+                .replace(/\bsign\s*\(/gi, 'Math.sign(')
+                .replace(/\bsgn\s*\(/gi, 'Math.sign(')
+                .replace(/\bsin\s*\(/gi, 'Math.sin(')
+                .replace(/\bcos\s*\(/gi, 'Math.cos(')
+                .replace(/\btan\s*\(/gi, 'Math.tan(')
+                .replace(/\bexp\s*\(/gi, 'Math.exp(')
+                .replace(/\babs\s*\(/gi, 'Math.abs(')
+                .replace(/\bsqrt\s*\(/gi, 'Math.sqrt(')
+                .replace(/\^/g, '**');
+
+            return new Function('t', `
+                try {
+                    const val = (${jsExpr});
+                    return Number.isFinite(val) ? val : 0;
+                } catch(e) { return 0; }
+            `);
+        }
+
+        function insertToken(token) {
+            const input = document.getElementById('customSignalInput');
+            const start = input.selectionStart || input.value.length;
+            const end = input.selectionEnd || input.value.length;
+            input.value = input.value.substring(0, start) + token + input.value.substring(end);
+            input.focus();
+            input.selectionStart = input.selectionEnd = start + token.length;
+            updateCustomSignal();
+        }
+
+        function backspaceToken() {
+            const input = document.getElementById('customSignalInput');
+            input.value = input.value.slice(0, -1);
+            updateCustomSignal();
+        }
+
+        function clearFormula() {
+            document.getElementById('customSignalInput').value = '';
+            updateCustomSignal();
+        }
+
+        function setPresetFormula(expr) {
+            document.getElementById('customSignalInput').value = expr;
+            document.getElementById('timeScaleA').value = 1.0;
+            document.getElementById('timeShiftT0').value = 0.0;
+            updateCustomSignal();
+            if (isAudioPlaying && currentAudioWaveMode === 'custom') rebuildCustomPeriodicWave();
+        }
+
+        /* =====================================================================
+           WEB AUDIO API ENGINE (SYNTHESIZER, ALIASING, QUANTIZATION & BODE FILTER)
+           ===================================================================== */
+        let audioCtx = null;
+        let activeOsc = null;
+        let activeGain = null;
+        let activeFilterNode = null;
+        let isAudioPlaying = false;
+        let isFilterAudioPlaying = false;
+        let currentAudioWaveMode = 'custom';
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function setAudioStatusUI(playing, labelText = 'AUDIO STANDBY') {
+            const dot = document.getElementById('audioStatusDot');
+            const txt = document.getElementById('audioStatusText');
+            const mainBtn = document.getElementById('mainPlayAudioBtn');
+            const mainIcon = document.getElementById('mainPlayIcon');
+            const mainText = document.getElementById('mainPlayText');
+
+            if (playing) {
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping';
+                txt.textContent = labelText;
+                txt.className = 'text-[11px] font-mono font-bold text-emerald-400';
+                if (mainBtn) mainBtn.classList.add('audio-active-glow');
+                if (mainIcon) mainIcon.className = 'fa-solid fa-stop';
+                if (mainText) mainText.textContent = 'Stop Audio';
+            } else {
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
+                txt.textContent = 'AUDIO STANDBY';
+                txt.className = 'text-[11px] font-mono font-semibold text-slate-300';
+                if (mainBtn) mainBtn.classList.remove('audio-active-glow');
+                if (mainIcon) mainIcon.className = 'fa-solid fa-play';
+                if (mainText) mainText.textContent = 'Play Signal Audio';
+            }
+        }
+
+        function stopAllAudio() {
+            if (activeOsc) {
+                try { activeOsc.stop(); activeOsc.disconnect(); } catch (e) {}
+                activeOsc = null;
+            }
+            isAudioPlaying = false;
+            isFilterAudioPlaying = false;
+            const fltBtn = document.getElementById('btnLiveFilterAudio');
+            if (fltBtn) fltBtn.innerHTML = '<i class="fa-solid fa-sliders"></i><span>Test Filter on Live Multi-Tone Audio!</span>';
+            setAudioStatusUI(false);
+        }
+
+        function buildPeriodicWaveFromFunction(fn) {
+            if (!audioCtx) return null;
+            const numH = 36;
+            const real = new Float32Array(numH);
+            const imag = new Float32Array(numH);
+            const M = 256;
+            for (let k = 1; k < numH; k++) {
+                let sCos = 0, sSin = 0;
+                for (let n = 0; n < M; n++) {
+                    const t = (n / M) - 0.5;
+                    const val = fn(t);
+                    const ang = 2 * Math.PI * k * (n / M);
+                    sCos += val * Math.cos(ang);
+                    sSin += val * Math.sin(ang);
+                }
+                real[k] = (2 / M) * sCos;
+                imag[k] = (2 / M) * sSin;
+            }
+            return audioCtx.createPeriodicWave(real, imag, { disableNormalization: false });
+        }
+
+        function rebuildCustomPeriodicWave() {
+            if (!activeOsc || !audioCtx) return;
+            if (currentAudioWaveMode === 'custom') {
+                const fn = compileSignalExpression(document.getElementById('customSignalInput').value);
+                const wave = buildPeriodicWaveFromFunction(fn);
+                if (wave) activeOsc.setPeriodicWave(wave);
+            } else {
+                activeOsc.type = currentAudioWaveMode;
+            }
+        }
+
+        function toggleCustomAudio() {
+            if (isAudioPlaying) { stopAllAudio(); return; }
+            startCustomAudio();
+        }
+
+        function startCustomAudio() {
+            stopAllAudio();
+            initAudioContext();
+            const freq = parseFloat(document.getElementById('audioFreqSlider').value) || 200;
+            const gainPct = parseFloat(document.getElementById('audioGainSlider').value) || 60;
+
+            activeOsc = audioCtx.createOscillator();
+            activeGain = audioCtx.createGain();
+            activeOsc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            activeGain.gain.setValueAtTime((gainPct / 100) * 0.32, audioCtx.currentTime);
+            rebuildCustomPeriodicWave();
+
+            activeOsc.connect(activeGain);
+            activeGain.connect(audioCtx.destination);
+            activeOsc.start();
+            isAudioPlaying = true;
+            setAudioStatusUI(true, `LIVE: ${freq} Hz (${currentAudioWaveMode.toUpperCase()})`);
+        }
+
+        function updateAudioParams() {
+            const freq = parseFloat(document.getElementById('audioFreqSlider').value) || 200;
+            const gainPct = parseFloat(document.getElementById('audioGainSlider').value) || 60;
+            document.getElementById('audioFreqVal').textContent = freq;
+            document.getElementById('audioGainVal').textContent = gainPct + '%';
+
+            if (isAudioPlaying && activeOsc && activeGain && audioCtx) {
+                activeOsc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.015);
+                activeGain.gain.setTargetAtTime((gainPct / 100) * 0.32, audioCtx.currentTime, 0.015);
+                setAudioStatusUI(true, `LIVE: ${freq} Hz (${currentAudioWaveMode.toUpperCase()})`);
+            }
+        }
+
+        function setAudioFreqAndPlay(freq) {
+            document.getElementById('audioFreqSlider').value = freq;
+            updateAudioParams();
+            if (!isAudioPlaying) startCustomAudio();
+        }
+
+        function selectAudioWaveMode(mode) {
+            currentAudioWaveMode = mode;
+            document.querySelectorAll('.audio-mode-btn').forEach(btn => {
+                btn.className = 'audio-mode-btn p-2 rounded-xl bg-navy-900 text-slate-200 font-bold text-[11px] border border-white/15 hover:border-gold-400 text-center transition';
+            });
+            const activeBtn = document.getElementById('audiomode-' + mode);
+            if (activeBtn) activeBtn.className = 'audio-mode-btn p-2 rounded-xl bg-gold-500 text-navy-950 font-bold text-[11px] border border-gold-400 text-center transition';
+
+            if (mode === 'sine') document.getElementById('customSignalInput').value = 'sin(2*pi*t)';
+            if (mode === 'square') document.getElementById('customSignalInput').value = 'square(2*pi*t)';
+            if (mode === 'triangle') document.getElementById('customSignalInput').value = 'triangle(2*pi*t)';
+            if (mode === 'sawtooth') document.getElementById('customSignalInput').value = 'sawtooth(2*pi*t)';
+            updateCustomSignal();
+
+            if (isAudioPlaying) {
+                rebuildCustomPeriodicWave();
+                const freq = document.getElementById('audioFreqSlider').value;
+                setAudioStatusUI(true, `LIVE: ${freq} Hz (${mode.toUpperCase()})`);
+            }
+        }
+
+        function quickPlayTone(freq, type) {
+            document.getElementById('audioFreqSlider').value = freq;
+            selectAudioWaveMode(type);
+            startCustomAudio();
+        }
+
+        /* =====================================================================
+           MODULE 01 RENDERER: TIME WAVEFORM & CTFT SPECTRUM
+           ===================================================================== */
+        function updateCustomSignal() {
+            const expr = document.getElementById('customSignalInput').value;
+            const scaleA = parseFloat(document.getElementById('timeScaleA').value) || 1.0;
+            const shiftT0 = parseFloat(document.getElementById('timeShiftT0').value) || 0.0;
+            document.getElementById('timeScaleVal').textContent = `a=${scaleA.toFixed(1)}, t₀=${shiftT0.toFixed(1)}`;
+
+            const baseFn = compileSignalExpression(expr);
+            const fn = (t) => baseFn(scaleA * t - shiftT0);
+
+            const N = 512;
+            const tMin = -2.0, tMax = 2.0;
+            const dt = (tMax - tMin) / N;
+            const samples = new Float64Array(N);
+            const evenS = new Float64Array(N);
+            const oddS = new Float64Array(N);
+
+            let energy = 0, maxAbs = 0.001;
+            for (let i = 0; i < N; i++) {
+                const t = tMin + i * dt;
+                const xt = fn(t);
+                const xmt = fn(-t);
+                samples[i] = xt;
+                evenS[i] = 0.5 * (xt + xmt);
+                oddS[i] = 0.5 * (xt - xmt);
+                energy += xt * xt * dt;
+                if (Math.abs(xt) > maxAbs) maxAbs = Math.abs(xt);
+            }
+
+            const power = energy / (tMax - tMin);
+            document.getElementById('statEnergy').textContent = energy.toFixed(2);
+            document.getElementById('statPower').textContent = power.toFixed(2);
+            document.getElementById('statRMS').textContent = Math.sqrt(power).toFixed(2);
+
+            const scope1 = setupCanvas('canvasTimeSynth');
+            if (scope1) {
+                const { ctx, w, h } = scope1;
+                drawScopeGrid(ctx, w, h, w / 2, h / 2);
+                const yScale = (h * 0.38) / Math.max(maxAbs, 1.0);
+
+                if (document.getElementById('showEvenPart').checked) {
+                    ctx.strokeStyle = '#00E5FF';
+                    ctx.lineWidth = 1.8;
+                    ctx.setLineDash([5, 4]);
+                    ctx.beginPath();
+                    for (let i = 0; i < N; i++) {
+                        const px = (i / (N - 1)) * w;
+                        const py = h / 2 - evenS[i] * yScale;
+                        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                if (document.getElementById('showOddPart').checked) {
+                    ctx.strokeStyle = '#F472B6';
+                    ctx.lineWidth = 1.8;
+                    ctx.setLineDash([3, 3]);
+                    ctx.beginPath();
+                    for (let i = 0; i < N; i++) {
+                        const px = (i / (N - 1)) * w;
+                        const py = h / 2 - oddS[i] * yScale;
+                        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                for (let i = 0; i < N; i++) {
+                    const px = (i / (N - 1)) * w;
+                    const py = h / 2 - samples[i] * yScale;
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = '#94A3B8';
+                ctx.font = '11px JetBrains Mono';
+                ctx.fillText('t = -2.0s', 10, h / 2 + 16);
+                ctx.fillText('t = 0', w / 2 + 6, h / 2 + 16);
+                ctx.fillText('t = +2.0s', w - 68, h / 2 + 16);
+            }
+
+            const scope2 = setupCanvas('canvasFreqSynth');
+            if (scope2) {
+                const { ctx, w, h } = scope2;
+                drawScopeGrid(ctx, w, h, w / 2, h * 0.78);
+                const K = 80;
+                const mags = new Float64Array(2 * K + 1);
+                const phases = new Float64Array(2 * K + 1);
+                let maxMag = 0.001;
+
+                for (let k = -K; k <= K; k++) {
+                    const f = k * 0.15;
+                    let re = 0, im = 0;
+                    for (let n = 0; n < N; n++) {
+                        const t = tMin + n * dt;
+                        const ang = -2 * Math.PI * f * t;
+                        re += samples[n] * Math.cos(ang) * dt;
+                        im += samples[n] * Math.sin(ang) * dt;
+                    }
+                    const mag = Math.hypot(re, im);
+                    mags[k + K] = mag;
+                    phases[k + K] = mag > 0.05 ? Math.atan2(im, re) : 0;
+                    if (mag > maxMag) maxMag = mag;
+                }
+
+                ctx.fillStyle = 'rgba(0, 229, 255, 0.18)';
+                ctx.strokeStyle = '#00E5FF';
+                ctx.lineWidth = 2.2;
+                ctx.beginPath();
+                ctx.moveTo(0, h * 0.78);
+                for (let idx = 0; idx <= 2 * K; idx++) {
+                    const px = (idx / (2 * K)) * w;
+                    const py = h * 0.78 - (mags[idx] / maxMag) * (h * 0.65);
+                    ctx.lineTo(px, py);
+                }
+                ctx.lineTo(w, h * 0.78);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.65)';
+                ctx.lineWidth = 1.3;
+                ctx.beginPath();
+                for (let idx = 0; idx <= 2 * K; idx++) {
+                    const px = (idx / (2 * K)) * w;
+                    const py = h * 0.30 - (phases[idx] / Math.PI) * (h * 0.18);
+                    if (idx === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+
+                ctx.fillStyle = '#00E5FF';
+                ctx.font = '11px JetBrains Mono';
+                ctx.fillText('|X(f)| Magnitude (Cyan)', 12, 20);
+                ctx.fillStyle = '#FFD700';
+                ctx.fillText('∠X(f) Phase (Gold)', w - 145, 20);
+            }
+        }
+
+        /* =====================================================================
+           MODULE 02: FOURIER SERIES, EPICYCLES & GIBBS
+           ===================================================================== */
+        let fourierWaveType = 'square';
+        let fourierN = 5;
+        let fourierSpeed = 1.0;
+        let fourierPhase = 0;
+        let fourierWaveHistory = [];
+
+        function setFourierWave(type) {
+            fourierWaveType = type;
+            fourierWaveHistory = [];
+            document.querySelectorAll('.fw-btn').forEach(btn => {
+                btn.className = 'fw-btn px-3 py-2.5 rounded-xl bg-navy-900 text-slate-200 font-bold text-xs border border-white/15 transition';
+            });
+            document.getElementById('fw-' + type).className = 'fw-btn px-3 py-2.5 rounded-xl bg-gold-500 text-navy-950 font-bold text-xs border border-gold-400 transition';
+
+            const fEl = document.getElementById('fourierFormulaDisplay');
+            const nEl = document.getElementById('fourierSymmetryNote');
+            if (type === 'square') {
+                fEl.textContent = 'x(t) = (4/π) ∑ [sin((2k-1)ω₀t) / (2k-1)]';
+                nEl.innerHTML = 'Odd & half-wave symmetry: Contains only odd sine harmonics decaying as <span class="font-mono">1/n</span> due to jump discontinuities.';
+            } else if (type === 'sawtooth') {
+                fEl.textContent = 'x(t) = (2/π) ∑ [(-1)^(n+1) sin(nω₀t) / n]';
+                nEl.innerHTML = 'Contains both even & odd harmonics decaying as <span class="font-mono">1/n</span> with Gibbs overshoot at the ramp reset.';
+            } else if (type === 'triangle') {
+                fEl.textContent = 'x(t) = (8/π²) ∑ [(-1)^((n-1)/2) sin(nω₀t) / n²] (n odd)';
+                nEl.innerHTML = 'Continuous waveform (derivative has jumps): Harmonics decay rapidly as <span class="font-mono">1/n²</span> with <strong>zero Gibbs overshoot</strong>.';
+            } else {
+                fEl.textContent = 'x(t) = 2/π - (4/π) ∑ [cos(2kω₀t) / (4k² - 1)]';
+                nEl.innerHTML = 'Full-wave bridge rectifier output: Strong DC component <span class="font-mono">2/π</span> plus even cosine harmonics.';
+            }
+            drawFourierSpectrum();
+        }
+
+        function updateFourierParams() {
+            fourierN = parseInt(document.getElementById('fourierNSlider').value) || 5;
+            fourierSpeed = parseFloat(document.getElementById('fourierSpeedSlider').value) || 1.0;
+            document.getElementById('fourierNVal').textContent = fourierN;
+            document.getElementById('fourierSpeedVal').textContent = fourierSpeed.toFixed(1) + 'x';
+            drawFourierSpectrum();
+        }
+
+        function getHarmonicTerm(type, kIndex) {
+            if (type === 'square') {
+                const n = 2 * kIndex - 1;
+                return { n, amp: 4 / (Math.PI * n), phase: 0 };
+            } else if (type === 'sawtooth') {
+                const n = kIndex;
+                const sign = (n % 2 === 1) ? 1 : -1;
+                return { n, amp: (2 / (Math.PI * n)) * sign, phase: 0 };
+            } else if (type === 'triangle') {
+                const n = 2 * kIndex - 1;
+                const sign = ((kIndex - 1) % 2 === 0) ? 1 : -1;
+                return { n, amp: (8 / (Math.PI * Math.PI * n * n)) * sign, phase: 0 };
+            } else {
+                const n = 2 * kIndex;
+                return { n, amp: -4 / (Math.PI * (n * n - 1)), phase: Math.PI / 2 };
+            }
+        }
+
+        function animateFourierEpicycles() {
+            if (activeTab === 'tab-fourier') {
+                const scope = setupCanvas('canvasFourierEpicycles');
+                if (scope) {
+                    const { ctx, w, h } = scope;
+                    drawScopeGrid(ctx, w, h, w * 0.24, h / 2);
+
+                    let cx = w * 0.22, cy = h / 2;
+                    const radScale = Math.min(w, h) * 0.26;
+
+                    for (let k = 1; k <= fourierN; k++) {
+                        const prevX = cx, prevY = cy;
+                        const { n, amp, phase } = getHarmonicTerm(fourierWaveType, k);
+                        const r = Math.abs(amp) * radScale;
+                        const ang = n * fourierPhase + phase + (amp < 0 ? Math.PI : 0);
+
+                        cx += r * Math.cos(ang);
+                        cy += r * Math.sin(ang);
+
+                        ctx.strokeStyle = 'rgba(0, 229, 255, 0.28)';
+                        ctx.lineWidth = 1.2;
+                        ctx.beginPath(); ctx.arc(prevX, prevY, r, 0, 2 * Math.PI); ctx.stroke();
+
+                        ctx.strokeStyle = '#FFD700';
+                        ctx.lineWidth = 1.6;
+                        ctx.beginPath(); ctx.moveTo(prevX, prevY); ctx.lineTo(cx, cy); ctx.stroke();
+                    }
+
+                    fourierWaveHistory.unshift(cy);
+                    if (fourierWaveHistory.length > 420) fourierWaveHistory.pop();
+
+                    const waveStartX = w * 0.44;
+                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.65)';
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(waveStartX, cy); ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    ctx.fillStyle = '#00E5FF';
+                    ctx.beginPath(); ctx.arc(waveStartX, cy, 4.5, 0, 2 * Math.PI); ctx.fill();
+
+                    ctx.strokeStyle = '#00E5FF';
+                    ctx.lineWidth = 2.4;
+                    ctx.shadowColor = '#00E5FF';
+                    ctx.shadowBlur = 8;
+                    ctx.beginPath();
+                    for (let i = 0; i < fourierWaveHistory.length; i++) {
+                        const px = waveStartX + i * 1.15;
+                        if (px > w - 10) break;
+                        if (i === 0) ctx.moveTo(px, fourierWaveHistory[i]);
+                        else ctx.lineTo(px, fourierWaveHistory[i]);
+                    }
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+
+                    fourierPhase += 0.028 * fourierSpeed;
+                }
+            }
+            requestAnimationFrame(animateFourierEpicycles);
+        }
+
+        function drawFourierSpectrum() {
+            const scope = setupCanvas('canvasFourierSpectrum');
+            if (!scope) return;
+            const { ctx, w, h } = scope;
+            drawScopeGrid(ctx, w, h, 45, h * 0.82);
+
+            const maxBars = Math.min(fourierN, 25);
+            let sumP = 0;
+            for (let k = 1; k <= fourierN; k++) {
+                const { amp } = getHarmonicTerm(fourierWaveType, k);
+                sumP += 0.5 * amp * amp;
+            }
+            if (fourierWaveType === 'rectified') sumP += (2 / Math.PI) ** 2;
+            const idealP = (fourierWaveType === 'square') ? 1.0 : (fourierWaveType === 'sawtooth' || fourierWaveType === 'triangle' ? 0.3333 : 0.5);
+            const pct = Math.min(99.9, (sumP / idealP) * 100);
+            document.getElementById('parsevalPowerBadge').textContent = `Parseval Power Captured: ${pct.toFixed(1)}%`;
+
+            for (let k = 1; k <= maxBars; k++) {
+                const { n, amp } = getHarmonicTerm(fourierWaveType, k);
+                const x = 60 + ((k - 1) / Math.max(1, maxBars - 1)) * (w - 95);
+                const barH = Math.min(h * 0.72, Math.abs(amp) * (h * 0.58));
+                const y = h * 0.82 - barH;
+
+                ctx.strokeStyle = '#00E5FF';
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.moveTo(x, h * 0.82); ctx.lineTo(x, y); ctx.stroke();
+
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath(); ctx.arc(x, y, 4.5, 0, 2 * Math.PI); ctx.fill();
+
+                ctx.fillStyle = '#CBD5E1';
+                ctx.font = '10px JetBrains Mono';
+                ctx.fillText(`${n}ω₀`, x - 10, h * 0.94);
+            }
+        }
+
+        function playFourierSeriesAudio() {
+            stopAllAudio();
+            initAudioContext();
+            const numH = Math.min(fourierN, 48);
+            const real = new Float32Array(numH * 2 + 2);
+            const imag = new Float32Array(numH * 2 + 2);
+            for (let k = 1; k <= numH; k++) {
+                const { n, amp, phase } = getHarmonicTerm(fourierWaveType, k);
+                if (n < real.length) {
+                    real[n] = amp * Math.sin(phase);
+                    imag[n] = amp * Math.cos(phase);
+                }
+            }
+            activeOsc = audioCtx.createOscillator();
+            activeGain = audioCtx.createGain();
+            activeOsc.setPeriodicWave(audioCtx.createPeriodicWave(real, imag));
+            activeOsc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            activeGain.gain.setValueAtTime(0.28, audioCtx.currentTime);
+            activeOsc.connect(activeGain);
+            activeGain.connect(audioCtx.destination);
+            activeOsc.start();
+            isAudioPlaying = true;
+            setAudioStatusUI(true, `FOURIER SYNTH (N=${fourierN})`);
+        }
+
+        /* =====================================================================
+           MODULE 03: LAPLACE S-PLANE & Z-PLANE STUDIO
+           ===================================================================== */
+        let pzDomain = 's';
+        let poles = [{ re: -0.45, im: 1.4 }, { re: -0.45, im: -1.4 }];
+        let zeros = [];
+        let draggingPZ = null;
+
+        function setPZDomain(dom) {
+            pzDomain = dom;
+            const btnS = document.getElementById('btnDomainS');
+            const btnZ = document.getElementById('btnDomainZ');
+            if (dom === 's') {
+                btnS.className = 'px-4 py-2 rounded-lg bg-gold-500 text-navy-950 font-black text-xs transition';
+                btnZ.className = 'px-4 py-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs transition';
+                document.getElementById('pzMapTitle').textContent = 'Complex S-Plane (Drag Poles × & Zeros ○)';
+                document.getElementById('impulseLabel').textContent = 'h(t) = L⁻¹{H(s)}';
+                poles = [{ re: -0.45, im: 1.4 }, { re: -0.45, im: -1.4 }];
+                zeros = [];
+            } else {
+                btnZ.className = 'px-4 py-2 rounded-lg bg-gold-500 text-navy-950 font-black text-xs transition';
+                btnS.className = 'px-4 py-2 rounded-lg text-slate-300 hover:text-white font-bold text-xs transition';
+                document.getElementById('pzMapTitle').textContent = 'Complex Z-Plane with Unit Circle |z| = 1';
+                document.getElementById('impulseLabel').textContent = 'h[n] = Z⁻¹{H(z)}';
+                poles = [{ re: 0.65, im: 0.5 }, { re: 0.65, im: -0.5 }];
+                zeros = [{ re: -1.0, im: 0 }];
+            }
+            updatePZAll();
+        }
+
+        function loadPZPreset(preset) {
+            if (pzDomain === 's') {
+                if (preset === 'underdamped') { poles = [{ re: -0.4, im: 1.5 }, { re: -0.4, im: -1.5 }]; zeros = []; }
+                if (preset === 'marginal') { poles = [{ re: 0.0, im: 1.5 }, { re: 0.0, im: -1.5 }]; zeros = []; }
+                if (preset === 'unstable') { poles = [{ re: 0.25, im: 1.4 }, { re: 0.25, im: -1.4 }]; zeros = []; }
+                if (preset === 'allpass') { poles = [{ re: -0.8, im: 1.0 }, { re: -0.8, im: -1.0 }]; zeros = [{ re: 0.8, im: 1.0 }, { re: 0.8, im: -1.0 }]; }
+                if (preset === 'notch') { poles = [{ re: -0.25, im: 1.2 }, { re: -0.25, im: -1.2 }]; zeros = [{ re: 0.0, im: 1.2 }, { re: 0.0, im: -1.2 }]; }
+                if (preset === 'nonmin') { poles = [{ re: -0.7, im: 0.9 }, { re: -0.7, im: -0.9 }]; zeros = [{ re: 0.9, im: 0 }]; }
+            } else {
+                if (preset === 'underdamped') { poles = [{ re: 0.6, im: 0.55 }, { re: 0.6, im: -0.55 }]; zeros = [{ re: 0, im: 0 }]; }
+                if (preset === 'marginal') { poles = [{ re: Math.cos(0.8), im: Math.sin(0.8) }, { re: Math.cos(0.8), im: -Math.sin(0.8) }]; zeros = []; }
+                if (preset === 'unstable') { poles = [{ re: 0.95, im: 0.6 }, { re: 0.95, im: -0.6 }]; zeros = []; }
+                if (preset === 'allpass') { poles = [{ re: 0.6, im: 0 }]; zeros = [{ re: 1 / 0.6, im: 0 }]; }
+                if (preset === 'notch') { poles = [{ re: 0.85 * Math.cos(1.1), im: 0.85 * Math.sin(1.1) }, { re: 0.85 * Math.cos(1.1), im: -0.85 * Math.sin(1.1) }]; zeros = [{ re: Math.cos(1.1), im: Math.sin(1.1) }, { re: Math.cos(1.1), im: -Math.sin(1.1) }]; }
+                if (preset === 'nonmin') { poles = [{ re: 0.5, im: 0.4 }, { re: 0.5, im: -0.4 }]; zeros = [{ re: 1.3, im: 0 }]; }
+            }
+            updatePZAll();
+        }
+
+        function addPoleZero(type) {
+            if (type === 'pole') poles.push({ re: -0.6, im: 0 });
+            else zeros.push({ re: -0.2, im: 0 });
+            updatePZAll();
+        }
+
+        function setupPZMouseEvents() {
+            const canvas = document.getElementById('canvasPZMap');
+            if (!canvas) return;
+            function getCoords(e) {
+                const rect = canvas.getBoundingClientRect();
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                const x = cx - rect.left, y = cy - rect.top;
+                const scale = Math.min(rect.width, rect.height) * 0.22;
+                return { re: (x - rect.width / 2) / scale, im: (rect.height / 2 - y) / scale };
+            }
+            const onDown = (e) => {
+                const pt = getCoords(e);
+                let best = 0.32;
+                draggingPZ = null;
+                poles.forEach((p, idx) => {
+                    const d = Math.hypot(p.re - pt.re, p.im - pt.im);
+                    if (d < best) { best = d; draggingPZ = { list: poles, idx }; }
+                });
+                zeros.forEach((z, idx) => {
+                    const d = Math.hypot(z.re - pt.re, z.im - pt.im);
+                    if (d < best) { best = d; draggingPZ = { list: zeros, idx }; }
+                });
+            };
+            const onMove = (e) => {
+                if (!draggingPZ) return;
+                e.preventDefault();
+                const pt = getCoords(e);
+                const t = draggingPZ.list[draggingPZ.idx];
+                const oldIm = t.im;
+                t.re = Math.max(-2.2, Math.min(2.2, pt.re));
+                t.im = Math.max(-2.0, Math.min(2.0, pt.im));
+                if (Math.abs(oldIm) > 0.08) {
+                    const cIdx = draggingPZ.idx ^ 1;
+                    if (draggingPZ.list[cIdx]) {
+                        draggingPZ.list[cIdx].re = t.re;
+                        draggingPZ.list[cIdx].im = -t.im;
+                    }
+                }
+                updatePZAll();
+            };
+            const onUp = () => { draggingPZ = null; };
+            canvas.addEventListener('mousedown', onDown);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+            canvas.addEventListener('touchstart', onDown, { passive: false });
+            canvas.addEventListener('touchmove', onMove, { passive: false });
+            window.addEventListener('touchend', onUp);
+        }
+
+        function updatePZAll() {
+            const scopeMap = setupCanvas('canvasPZMap');
+            if (!scopeMap) return;
+            const { ctx, w, h } = scopeMap;
+            const cx = w / 2, cy = h / 2;
+            const scale = Math.min(w, h) * 0.22;
+            drawScopeGrid(ctx, w, h, cx, cy);
+
+            let maxSigma = -2.5, maxRad = 0;
+            poles.forEach(p => {
+                if (p.re > maxSigma) maxSigma = p.re;
+                const r = Math.hypot(p.re, p.im);
+                if (r > maxRad) maxRad = r;
+            });
+
+            if (pzDomain === 's') {
+                const rocX = cx + maxSigma * scale;
+                ctx.fillStyle = maxSigma < 0 ? 'rgba(16, 185, 129, 0.14)' : 'rgba(244, 63, 94, 0.14)';
+                ctx.fillRect(rocX, 0, w - rocX, h);
+                ctx.strokeStyle = '#10B981';
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath(); ctx.moveTo(rocX, 0); ctx.lineTo(rocX, h); ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.strokeStyle = '#00E5FF';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+            } else {
+                ctx.strokeStyle = '#00E5FF';
+                ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(cx, cy, scale, 0, 2 * Math.PI); ctx.stroke();
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.6)';
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath(); ctx.arc(cx, cy, maxRad * scale, 0, 2 * Math.PI); ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            zeros.forEach(z => {
+                const px = cx + z.re * scale, py = cy - z.im * scale;
+                ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2.8;
+                ctx.beginPath(); ctx.arc(px, py, 7, 0, 2 * Math.PI); ctx.stroke();
+            });
+
+            poles.forEach(p => {
+                const px = cx + p.re * scale, py = cy - p.im * scale;
+                ctx.strokeStyle = '#FB7185'; ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(px - 7, py - 7); ctx.lineTo(px + 7, py + 7);
+                ctx.moveTo(px + 7, py - 7); ctx.lineTo(px - 7, py + 7);
+                ctx.stroke();
+            });
+
+            const banner = document.getElementById('stabilityBanner');
+            const stTitle = document.getElementById('stabilityTitle');
+            const rocDesc = document.getElementById('rocDescription');
+            const isStable = (pzDomain === 's') ? (maxSigma < -0.02) : (maxRad < 0.98);
+            const isMarg = (pzDomain === 's') ? (Math.abs(maxSigma) <= 0.02) : (Math.abs(maxRad - 1.0) <= 0.02);
+
+            if (isStable) {
+                banner.className = 'p-3 rounded-xl bg-emerald-950/80 border border-emerald-400/50 flex items-center justify-between';
+                stTitle.className = 'text-xs font-black text-emerald-300 block';
+                stTitle.textContent = '✅ BIBO Stable & Causal System';
+                rocDesc.textContent = pzDomain === 's' ? `ROC: Re(s) > ${maxSigma.toFixed(2)} (Contains jω Axis)` : `ROC: |z| > ${maxRad.toFixed(2)} (Contains Unit Circle |z|=1)`;
+            } else if (isMarg) {
+                banner.className = 'p-3 rounded-xl bg-amber-950/80 border border-gold-500/50 flex items-center justify-between';
+                stTitle.className = 'text-xs font-black text-gold-400 block';
+                stTitle.textContent = '⚠️ Marginally Stable Harmonic Oscillator';
+                rocDesc.textContent = pzDomain === 's' ? 'Poles lie directly on the imaginary jω axis' : 'Poles lie directly on the Unit Circle |z|=1';
+            } else {
+                banner.className = 'p-3 rounded-xl bg-rose-950/80 border border-rose-500/50 flex items-center justify-between';
+                stTitle.className = 'text-xs font-black text-rose-300 block';
+                stTitle.textContent = '❌ Unstable Causal System (Exponential Growth)';
+                rocDesc.textContent = pzDomain === 's' ? `ROC: Re(s) > ${maxSigma.toFixed(2)} (Does NOT include jω axis)` : `ROC: |z| > ${maxRad.toFixed(2)} (Does NOT include |z|=1)`;
+            }
+
+            const scopeImp = setupCanvas('canvasPZImpulse');
+            if (scopeImp) {
+                const { ctx: ictx, w: iw, h: ih } = scopeImp;
+                drawScopeGrid(ictx, iw, ih, 45, ih / 2);
+                const p0 = poles[0] || { re: -0.5, im: 1.2 };
+                ictx.strokeStyle = '#FFD700'; ictx.lineWidth = 2.4;
+                ictx.beginPath();
+                if (pzDomain === 's') {
+                    for (let i = 0; i < 300; i++) {
+                        const t = (i / 300) * 12;
+                        const val = Math.max(-1.8, Math.min(1.8, Math.exp(p0.re * t) * Math.cos(p0.im * t)));
+                        const px = 45 + (i / 300) * (iw - 60);
+                        const py = ih / 2 - val * (ih * 0.36);
+                        if (i === 0) ictx.moveTo(px, py); else ictx.lineTo(px, py);
+                    }
+                    ictx.stroke();
+                } else {
+                    const r = Math.hypot(p0.re, p0.im);
+                    const om = Math.atan2(p0.im, p0.re);
+                    for (let n = 0; n < 36; n++) {
+                        const val = Math.max(-1.8, Math.min(1.8, Math.pow(r, n) * Math.cos(om * n)));
+                        const px = 45 + (n / 36) * (iw - 60);
+                        const py = ih / 2 - val * (ih * 0.36);
+                        ictx.strokeStyle = '#FFD700';
+                        ictx.beginPath(); ictx.moveTo(px, ih / 2); ictx.lineTo(px, py); ictx.stroke();
+                        ictx.fillStyle = '#00E5FF';
+                        ictx.beginPath(); ictx.arc(px, py, 4, 0, 2 * Math.PI); ictx.fill();
+                    }
+                }
+            }
+
+            const scopeFreq = setupCanvas('canvasPZFreq');
+            if (scopeFreq) {
+                const { ctx: fctx, w: fw, h: fh } = scopeFreq;
+                drawScopeGrid(fctx, fw, fh, fw / 2, fh * 0.82);
+                const M = 240;
+                const mags = new Float64Array(M);
+                let maxM = 0.001;
+                for (let i = 0; i < M; i++) {
+                    const wVal = ((i / (M - 1)) - 0.5) * 6.0;
+                    const eRe = (pzDomain === 's') ? 0 : Math.cos(wVal * 0.5);
+                    const eIm = (pzDomain === 's') ? wVal : Math.sin(wVal * 0.5);
+                    let num = 1.0, den = 1.0;
+                    zeros.forEach(z => { num *= Math.hypot(eRe - z.re, eIm - z.im); });
+                    poles.forEach(p => { den *= Math.max(0.04, Math.hypot(eRe - p.re, eIm - p.im)); });
+                    mags[i] = num / den;
+                    if (mags[i] > maxM) maxM = mags[i];
+                }
+                fctx.fillStyle = 'rgba(0, 229, 255, 0.2)';
+                fctx.strokeStyle = '#00E5FF'; fctx.lineWidth = 2.5;
+                fctx.beginPath(); fctx.moveTo(0, fh * 0.82);
+                for (let i = 0; i < M; i++) {
+                    const px = (i / (M - 1)) * fw;
+                    const py = fh * 0.82 - (mags[i] / maxM) * (fh * 0.68);
+                    fctx.lineTo(px, py);
+                }
+                fctx.lineTo(fw, fh * 0.82); fctx.closePath();
+                fctx.fill(); fctx.stroke();
+            }
+        }
+
+        function playImpulseAudio() {
+            stopAllAudio();
+            initAudioContext();
+            const p0 = poles[0] || { re: -0.5, im: 1.4 };
+            const dur = 1.2, sr = audioCtx.sampleRate;
+            const buf = audioCtx.createBuffer(1, sr * dur, sr);
+            const data = buf.getChannelData(0);
+            const fOsc = 220 + Math.abs(p0.im) * 180;
+            const damp = Math.max(-6, Math.min(2, p0.re * 3));
+            for (let i = 0; i < data.length; i++) {
+                const t = i / sr;
+                data[i] = 0.35 * Math.exp(damp * t) * Math.sin(2 * Math.PI * fOsc * t);
+            }
+            const src = audioCtx.createBufferSource();
+            src.buffer = buf; src.connect(audioCtx.destination); src.start();
+            setAudioStatusUI(true, 'IMPULSE RING h(t)');
+            setTimeout(() => setAudioStatusUI(false), 1200);
+        }
+
+        /* =====================================================================
+           MODULE 04 (NEW): SAMPLING, ALIASING & PAM/PWM/PPM/PCM LAB
+           ===================================================================== */
+        function setSamplingPreset(f0, fs) {
+            document.getElementById('sampF0Slider').value = f0;
+            document.getElementById('sampFsSlider').value = fs;
+            updateSamplingLab();
+        }
+
+        function getAliasedFrequency(f0, fs) {
+            const k = Math.round(f0 / fs);
+            return Math.abs(f0 - k * fs);
+        }
+
+        function updateSamplingLab() {
+            const f0 = parseFloat(document.getElementById('sampF0Slider').value) || 400;
+            const fs = parseFloat(document.getElementById('sampFsSlider').value) || 1000;
+            document.getElementById('sampF0Val').textContent = f0 + ' Hz';
+            document.getElementById('sampFsVal').textContent = fs + ' Hz';
+
+            const fAlias = getAliasedFrequency(f0, fs);
+            const isAliased = fs < 2 * f0;
+
+            document.getElementById('btnOrigFreqTxt').textContent = f0 + ' Hz';
+            document.getElementById('btnAliasFreqTxt').textContent = fAlias + ' Hz';
+
+            const card = document.getElementById('aliasingStatusCard');
+            const title = document.getElementById('aliasingStatusTitle');
+            const detail = document.getElementById('aliasingStatusDetail');
+
+            if (!isAliased) {
+                card.className = 'p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-400/50 space-y-1';
+                title.className = 'text-xs font-black text-emerald-300';
+                title.textContent = '✅ NYQUIST CRITERION SATISFIED (fs ≥ 2f₀)';
+                detail.textContent = `Nyquist Rate = ${2 * f0} Hz | Reconstructed f_rec = ${f0} Hz (Exact Recovery!)`;
+            } else {
+                card.className = 'p-3.5 rounded-xl bg-rose-950/80 border border-rose-500/50 space-y-1';
+                title.className = 'text-xs font-black text-rose-300';
+                title.textContent = '⚠️ SPECTRAL ALIASING DETECTED (fs < 2f₀)!';
+                detail.textContent = `Nyquist Rate = ${2 * f0} Hz | False Aliased Tone f_alias = |${f0} - fs| = ${fAlias} Hz!`;
+            }
+
+            // 1. Time Domain Canvas: Original x(t), Samples x[n], Reconstructed x_hat(t)
+            const scopeT = setupCanvas('canvasSamplingTime');
+            if (scopeT) {
+                const { ctx, w, h } = scopeT;
+                drawScopeGrid(ctx, w, h, 40, h / 2);
+                const T_window = 0.010; // 10 ms window
+                const N = 400;
+
+                // Original Analog Signal x(t) in Cyan
+                ctx.strokeStyle = 'rgba(0, 229, 255, 0.55)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < N; i++) {
+                    const t = (i / (N - 1)) * T_window;
+                    const px = 40 + (i / (N - 1)) * (w - 60);
+                    const py = h / 2 - Math.cos(2 * Math.PI * f0 * t) * (h * 0.36);
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+
+                // Reconstructed Signal x_hat(t) (Aliased Cosine if fs < 2f0)
+                ctx.strokeStyle = isAliased ? '#FB7185' : '#10B981';
+                ctx.lineWidth = 2.6;
+                ctx.setLineDash(isAliased ? [6, 4] : []);
+                ctx.beginPath();
+                for (let i = 0; i < N; i++) {
+                    const t = (i / (N - 1)) * T_window;
+                    const px = 40 + (i / (N - 1)) * (w - 60);
+                    const py = h / 2 - Math.cos(2 * Math.PI * fAlias * t) * (h * 0.36);
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Discrete Sample Points x[n] at t = n / fs
+                const Ts = 1 / fs;
+                for (let t = 0; t <= T_window; t += Ts) {
+                    const px = 40 + (t / T_window) * (w - 60);
+                    const val = Math.cos(2 * Math.PI * f0 * t);
+                    const py = h / 2 - val * (h * 0.36);
+
+                    ctx.strokeStyle = '#FFD700';
+                    ctx.lineWidth = 1.6;
+                    ctx.beginPath(); ctx.moveTo(px, h / 2); ctx.lineTo(px, py); ctx.stroke();
+
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath(); ctx.arc(px, py, 4.5, 0, 2 * Math.PI); ctx.fill();
+                }
+
+                ctx.fillStyle = '#00E5FF'; ctx.font = '11px JetBrains Mono';
+                ctx.fillText(`True x(t): ${f0} Hz`, 48, 20);
+                ctx.fillStyle = isAliased ? '#FB7185' : '#10B981';
+                ctx.fillText(`Reconstructed x̂(t): ${fAlias} Hz ${isAliased ? '(ALIASED PHANTOM WAVE!)' : '(EXACT)'}`, w - 340, 20);
+            }
+
+            // 2. Frequency Domain Canvas: Spectral Replicas & Ideal LPF Passband [-fs/2, +fs/2]
+            const scopeF = setupCanvas('canvasSamplingSpectrum');
+            if (scopeF) {
+                const { ctx, w, h } = scopeF;
+                const cx = w / 2, baseY = h * 0.82;
+                drawScopeGrid(ctx, w, h, cx, baseY);
+
+                const fMaxPlot = 2600;
+                const fToX = (freq) => cx + (freq / fMaxPlot) * (w * 0.45);
+
+                // Ideal Reconstruction LPF Box [-fs/2, +fs/2]
+                const xLpfL = fToX(-fs / 2);
+                const xLpfR = fToX(fs / 2);
+                ctx.fillStyle = isAliased ? 'rgba(244, 63, 94, 0.14)' : 'rgba(16, 185, 129, 0.14)';
+                ctx.fillRect(xLpfL, h * 0.15, xLpfR - xLpfL, baseY - h * 0.15);
+                ctx.strokeStyle = isAliased ? '#FB7185' : '#10B981';
+                ctx.setLineDash([5, 4]);
+                ctx.strokeRect(xLpfL, h * 0.15, xLpfR - xLpfL, baseY - h * 0.15);
+                ctx.setLineDash([]);
+
+                // Draw Replicas k = -2, -1, 0, 1, 2
+                for (let k = -2; k <= 2; k++) {
+                    const centerF = k * fs;
+                    const fPos = centerF + f0;
+                    const fNeg = centerF - f0;
+                    const col = (k === 0) ? '#00E5FF' : '#FFD700';
+
+                    [fPos, fNeg].forEach(fSpike => {
+                        if (Math.abs(fSpike) <= fMaxPlot) {
+                            const sx = fToX(fSpike);
+                            const sy = baseY - h * 0.58;
+                            ctx.strokeStyle = col;
+                            ctx.lineWidth = 3;
+                            ctx.beginPath(); ctx.moveTo(sx, baseY); ctx.lineTo(sx, sy); ctx.stroke();
+                            ctx.fillStyle = col;
+                            ctx.beginPath(); ctx.arc(sx, sy, 4.5, 0, 2 * Math.PI); ctx.fill();
+                        }
+                    });
+                }
+
+                ctx.fillStyle = '#00E5FF'; ctx.font = '11px JetBrains Mono';
+                ctx.fillText('Baseband ±f₀ (Cyan) | Sampling Replicas k·fs ± f₀ (Gold)', 14, 20);
+                ctx.fillStyle = isAliased ? '#FB7185' : '#10B981';
+                ctx.fillText(`LPF Passband [-fs/2, +fs/2] = [±${(fs / 2).toFixed(0)} Hz]`, cx - 120, baseY + 16);
+            }
+        }
+
+        function playAliasingAudio(mode) {
+            stopAllAudio();
+            initAudioContext();
+            const f0 = parseFloat(document.getElementById('sampF0Slider').value) || 400;
+            const fs = parseFloat(document.getElementById('sampFsSlider').value) || 1000;
+            const fAlias = getAliasedFrequency(f0, fs);
+
+            if (mode === 'original' || mode === 'aliased') {
+                const targetF = (mode === 'original') ? f0 : fAlias;
+                activeOsc = audioCtx.createOscillator();
+                activeGain = audioCtx.createGain();
+                activeOsc.type = 'sine';
+                activeOsc.frequency.setValueAtTime(targetF, audioCtx.currentTime);
+                activeGain.gain.setValueAtTime(0.32, audioCtx.currentTime);
+                activeOsc.connect(activeGain);
+                activeGain.connect(audioCtx.destination);
+                activeOsc.start();
+                isAudioPlaying = true;
+                setAudioStatusUI(true, `${mode === 'original' ? 'ORIGINAL' : 'ALIASED'}: ${targetF} Hz`);
+                setTimeout(() => { if (isAudioPlaying) stopAllAudio(); }, 1800);
+            } else {
+                // Sample-and-Hold Staircase Audio Buffer
+                const dur = 1.8, sr = audioCtx.sampleRate;
+                const buf = audioCtx.createBuffer(1, sr * dur, sr);
+                const data = buf.getChannelData(0);
+                const holdSamples = Math.max(1, Math.round(sr / fs));
+                let heldVal = 0;
+                for (let i = 0; i < data.length; i++) {
+                    if (i % holdSamples === 0) {
+                        heldVal = Math.sin(2 * Math.PI * f0 * (i / sr));
+                    }
+                    data[i] = 0.28 * heldVal;
+                }
+                const src = audioCtx.createBufferSource();
+                src.buffer = buf; src.connect(audioCtx.destination); src.start();
+                setAudioStatusUI(true, `SAMPLE & HOLD (fs=${fs}Hz)`);
+                setTimeout(() => setAudioStatusUI(false), 1800);
+            }
+        }
+
+        /* SUB-TAB B: PAM, PWM, PPM & PCM QUANTIZER */
+        function updatePCMLab() {
+            const B = parseInt(document.getElementById('pcmBitsSlider').value) || 3;
+            const Np = parseInt(document.getElementById('pcmPulseRateSlider').value) || 16;
+            const L = Math.pow(2, B);
+            const delta = 2.0 / L;
+            const sqnr = 6.02 * B + 1.76;
+
+            document.getElementById('pcmBitsVal').textContent = `${B} bits (${L} Levels)`;
+            document.getElementById('pcmPulseRateVal').textContent = `${Np} pulses/cycle`;
+            document.getElementById('pcmSqnrVal').textContent = `${sqnr.toFixed(2)} dB`;
+            document.getElementById('pcmStepVal').textContent = `${delta.toFixed(3)} V`;
+
+            // Generate binary PCM words for 8 sample instants
+            let words = [];
+            for (let k = 0; k < 8; k++) {
+                const x = Math.sin(2 * Math.PI * (k / 8));
+                let idx = Math.floor(((x + 1.0) / 2.0) * L);
+                idx = Math.max(0, Math.min(L - 1, idx));
+                words.push(idx.toString(2).padStart(B, '0'));
+            }
+            document.getElementById('pcmBitstreamBox').textContent = words.join('  ');
+
+            // 1. PCM Staircase & Quantization Error Canvas
+            const scopeQ = setupCanvas('canvasPCMQuant');
+            if (scopeQ) {
+                const { ctx, w, h } = scopeQ;
+                drawScopeGrid(ctx, w, h, 40, h / 2);
+                const M = 400;
+
+                // Analog Signal x(t) Cyan
+                ctx.strokeStyle = 'rgba(0, 229, 255, 0.55)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for (let i = 0; i < M; i++) {
+                    const u = i / (M - 1);
+                    const x = Math.sin(2 * Math.PI * u);
+                    const px = 40 + u * (w - 60);
+                    const py = h / 2 - x * (h * 0.38);
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+
+                // Quantized Staircase x_q(t) Gold & Error e_q(t) Rose
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                for (let i = 0; i < M; i++) {
+                    const u = i / (M - 1);
+                    const uSampled = Math.floor(u * Np) / Np;
+                    const x = Math.sin(2 * Math.PI * uSampled);
+                    let qIdx = Math.floor(((x + 1.0) / 2.0) * L);
+                    qIdx = Math.max(0, Math.min(L - 1, qIdx));
+                    const xq = -1.0 + (qIdx + 0.5) * delta;
+
+                    const px = 40 + u * (w - 60);
+                    const py = h / 2 - xq * (h * 0.38);
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+
+                // Quantization Error e_q(t) = x(t) - x_q(t)
+                ctx.strokeStyle = '#FB7185';
+                ctx.lineWidth = 1.4;
+                ctx.beginPath();
+                for (let i = 0; i < M; i++) {
+                    const u = i / (M - 1);
+                    const xTrue = Math.sin(2 * Math.PI * u);
+                    let qIdx = Math.floor(((xTrue + 1.0) / 2.0) * L);
+                    qIdx = Math.max(0, Math.min(L - 1, qIdx));
+                    const xq = -1.0 + (qIdx + 0.5) * delta;
+                    const err = xTrue - xq;
+
+                    const px = 40 + u * (w - 60);
+                    const py = h / 2 - err * (h * 0.38);
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+
+                ctx.fillStyle = '#FFD700'; ctx.font = '11px JetBrains Mono';
+                ctx.fillText(`Quantized Staircase x_q(t) (${L} Levels)`, 48, 20);
+                ctx.fillStyle = '#FB7185';
+                ctx.fillText('Quantization Noise Error e_q(t) (Rose)', w - 265, 20);
+            }
+
+            // 2. Pulse Modulations: PAM, PWM, PPM Canvas
+            const scopeP = setupCanvas('canvasPulseMod');
+            if (scopeP) {
+                const { ctx, w, h } = scopeP;
+                ctx.clearRect(0, 0, w, h);
+                drawScopeGrid(ctx, w, h, 40, h / 2);
+
+                const rowH = h / 3;
+                const numPulses = Math.min(14, Np);
+                const cellW = (w - 60) / numPulses;
+
+                for (let k = 0; k < numPulses; k++) {
+                    const u = k / numPulses;
+                    const mVal = Math.sin(2 * Math.PI * u); // in [-1, 1]
+                    const norm = (mVal + 1.0) / 2.0; // in [0.1, 0.9]
+                    const x0 = 45 + k * cellW;
+
+                    // Row 1: Flat-Top PAM (Gold)
+                    const yPamBase = rowH * 0.65;
+                    const pamH = mVal * (rowH * 0.38);
+                    ctx.fillStyle = 'rgba(255, 215, 0, 0.45)';
+                    ctx.strokeStyle = '#FFD700';
+                    ctx.lineWidth = 1.8;
+                    ctx.fillRect(x0, yPamBase - pamH, cellW * 0.55, pamH);
+                    ctx.strokeRect(x0, yPamBase - pamH, cellW * 0.55, pamH);
+
+                    // Row 2: PWM (Pulse Width Proportional to m(t)) (Cyan)
+                    const yPwmBase = rowH * 1.80;
+                    const pwmWidth = Math.max(0.12, Math.min(0.88, norm)) * (cellW * 0.88);
+                    ctx.fillStyle = 'rgba(0, 229, 255, 0.35)';
+                    ctx.strokeStyle = '#00E5FF';
+                    ctx.fillRect(x0, yPwmBase - rowH * 0.5, pwmWidth, rowH * 0.5);
+                    ctx.strokeRect(x0, yPwmBase - rowH * 0.5, pwmWidth, rowH * 0.5);
+
+                    // Row 3: PPM (Pulse Position Shifted by m(t)) (Emerald)
+                    const yPpmBase = rowH * 2.85;
+                    const ppmOffset = norm * (cellW * 0.65);
+                    ctx.fillStyle = 'rgba(16, 185, 129, 0.45)';
+                    ctx.strokeStyle = '#10B981';
+                    ctx.fillRect(x0 + ppmOffset, yPpmBase - rowH * 0.5, cellW * 0.20, rowH * 0.5);
+                    ctx.strokeRect(x0 + ppmOffset, yPpmBase - rowH * 0.5, cellW * 0.20, rowH * 0.5);
+                }
+
+                ctx.font = '11px JetBrains Mono';
+                ctx.fillStyle = '#FFD700'; ctx.fillText('1. Flat-Top PAM', 10, 18);
+                ctx.fillStyle = '#00E5FF'; ctx.fillText('2. PWM (Variable Width)', 10, rowH + 18);
+                ctx.fillStyle = '#10B981'; ctx.fillText('3. PPM (Variable Position)', 10, 2 * rowH + 18);
+            }
+        }
+
+        function playQuantizedAudio() {
+            stopAllAudio();
+            initAudioContext();
+            const B = parseInt(document.getElementById('pcmBitsSlider').value) || 3;
+            const L = Math.pow(2, B);
+            const delta = 2.0 / L;
+            const dur = 1.8, sr = audioCtx.sampleRate;
+            const buf = audioCtx.createBuffer(1, sr * dur, sr);
+            const data = buf.getChannelData(0);
+
+            for (let i = 0; i < data.length; i++) {
+                const t = i / sr;
+                const x = Math.sin(2 * Math.PI * 220 * t);
+                let qIdx = Math.floor(((x + 1.0) / 2.0) * L);
+                qIdx = Math.max(0, Math.min(L - 1, qIdx));
+                const xq = -1.0 + (qIdx + 0.5) * delta;
+                data[i] = 0.28 * xq;
+            }
+            const src = audioCtx.createBufferSource();
+            src.buffer = buf; src.connect(audioCtx.destination); src.start();
+            setAudioStatusUI(true, `${B}-BIT PCM AUDIO (SQNR=${(6.02 * B + 1.76).toFixed(1)}dB)`);
+            setTimeout(() => setAudioStatusUI(false), 1800);
+        }
+
+        /* =====================================================================
+           MODULE 05: ANALOG & DIGITAL MODULATION LAB
+           ===================================================================== */
+        let currentModType = 'AM';
+
+        function selectModulation(type) {
+            currentModType = type;
+            document.querySelectorAll('.mod-btn').forEach(btn => {
+                btn.className = 'mod-btn nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-white/15 bg-navy-900 text-center';
+            });
+            const active = document.getElementById('mod-' + type);
+            if (active) active.className = 'mod-btn active nav-pill px-2.5 py-2 rounded-xl text-xs font-bold border border-gold-500/40 text-center';
+            updateModulation();
+        }
+
+        function updateModulation() {
+            const mu = parseFloat(document.getElementById('modIndexSlider').value) || 0.8;
+            const fm = parseFloat(document.getElementById('modFmSlider').value) || 10;
+            const fc = parseFloat(document.getElementById('modFcSlider').value) || 120;
+            const snr = parseFloat(document.getElementById('modSnrSlider').value) || 22;
+
+            document.getElementById('modIndexVal').textContent = mu.toFixed(2);
+            document.getElementById('modFmVal').textContent = fm + ' kHz';
+            document.getElementById('modFcVal').textContent = fc + ' kHz';
+            document.getElementById('modSnrVal').textContent = snr + ' dB';
+
+            document.getElementById('overmodWarning').classList.toggle('hidden', !(currentModType === 'AM' && mu > 1.0));
+
+            const titleEl = document.getElementById('modTitleBox');
+            const formEl = document.getElementById('modFormulaBox');
+            const bwEl = document.getElementById('kpiBandwidth');
+            const effEl = document.getElementById('kpiEfficiency');
+
+            if (currentModType === 'AM') {
+                titleEl.textContent = 'Standard Amplitude Modulation (AM - DSB-LC)';
+                formEl.textContent = 's(t) = Ac [1 + μ·m(t)] cos(2πfc·t)';
+                bwEl.textContent = (2 * fm).toFixed(1) + ' kHz';
+                effEl.textContent = (((mu * mu) / (2 + mu * mu)) * 100).toFixed(1) + '%';
+            } else if (currentModType === 'DSB') {
+                titleEl.textContent = 'Double-Sideband Suppressed-Carrier (DSB-SC)';
+                formEl.textContent = 's(t) = Ac · m(t) cos(2πfc·t)';
+                bwEl.textContent = (2 * fm).toFixed(1) + ' kHz';
+                effEl.textContent = '100% (No Carrier)';
+            } else if (currentModType === 'SSB') {
+                titleEl.textContent = 'Single-Sideband Suppressed-Carrier (SSB-USB)';
+                formEl.textContent = 's(t) = Ac [m(t)cos(ωc·t) - m̂(t)sin(ωc·t)]';
+                bwEl.textContent = fm.toFixed(1) + ' kHz (Optimal!)';
+                effEl.textContent = '100% (Min BW)';
+            } else if (currentModType === 'FM') {
+                titleEl.textContent = 'Frequency Modulation (FM - Carson Rule)';
+                formEl.textContent = 's(t) = Ac cos(2πfc·t + β·sin(2πfm·t))';
+                bwEl.textContent = (2 * (mu + 1) * fm).toFixed(1) + ' kHz';
+                effEl.textContent = '100% (Const Env)';
+            } else if (currentModType === 'PM') {
+                titleEl.textContent = 'Phase Modulation (PM)';
+                formEl.textContent = 's(t) = Ac cos(2πfc·t + kp·m(t))';
+                bwEl.textContent = (2 * (mu + 1) * fm).toFixed(1) + ' kHz';
+                effEl.textContent = '100%';
+            } else if (currentModType === 'ASK') {
+                titleEl.textContent = 'Amplitude-Shift Keying (ASK / OOK)';
+                formEl.textContent = 's(t) = b(t) · Ac cos(2πfc·t) , b ∈ {0, 1}';
+                bwEl.textContent = (2 * fm).toFixed(1) + ' kHz';
+                effEl.textContent = '1.0 bps/Hz';
+            } else if (currentModType === 'BPSK') {
+                titleEl.textContent = 'Binary Phase-Shift Keying (BPSK)';
+                formEl.textContent = 's(t) = ±Ac cos(2πfc·t) (180° Phase Reversal)';
+                bwEl.textContent = (2 * fm).toFixed(1) + ' kHz';
+                effEl.textContent = '1.0 bps/Hz (Best BER)';
+            } else if (currentModType === 'FSK') {
+                titleEl.textContent = 'Binary Frequency-Shift Keying (BFSK)';
+                formEl.textContent = 's(t) = Ac cos(2π(fc ± Δf)t)';
+                bwEl.textContent = (2 * fm + 2 * mu * fm).toFixed(1) + ' kHz';
+                effEl.textContent = '0.8 bps/Hz';
+            } else if (currentModType === 'QAM16') {
+                titleEl.textContent = '16-State Quadrature Amplitude Modulation (16-QAM)';
+                formEl.textContent = 's(t) = I(t)cos(ωc·t) - Q(t)sin(ωc·t) , M=16';
+                bwEl.textContent = (fm / 2).toFixed(1) + ' kHz';
+                effEl.textContent = '4.0 bps/Hz';
+            }
+
+            const scopeTime = setupCanvas('canvasModTime');
+            if (scopeTime) {
+                const { ctx, w, h } = scopeTime;
+                drawScopeGrid(ctx, w, h, w / 2, h / 2);
+                const N = 500;
+                const bitStream = [1, 0, 1, 1, 0, 1, 0, 0];
+                const fMsgNorm = 2.0 + (fm / 15);
+                const fCarNorm = 18.0 + (fc / 12);
+
+                ctx.strokeStyle = 'rgba(0, 229, 255, 0.75)';
+                ctx.lineWidth = 1.8;
+                ctx.setLineDash([5, 4]);
+                ctx.beginPath();
+                for (let i = 0; i < N; i++) {
+                    const u = i / (N - 1);
+                    let mVal = Math.cos(2 * Math.PI * fMsgNorm * u);
+                    if (['ASK', 'BPSK', 'FSK', 'QAM16'].includes(currentModType)) {
+                        const bIdx = Math.min(bitStream.length - 1, Math.floor(u * bitStream.length));
+                        mVal = bitStream[bIdx] ? 1.0 : -1.0;
+                    }
+                    const px = u * w, py = h / 2 - mVal * (h * 0.35);
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2.1;
+                ctx.beginPath();
+                for (let i = 0; i < N; i++) {
+                    const u = i / (N - 1);
+                    const mSin = Math.cos(2 * Math.PI * fMsgNorm * u);
+                    const mHilb = Math.sin(2 * Math.PI * fMsgNorm * u);
+                    const bIdx = Math.min(bitStream.length - 1, Math.floor(u * bitStream.length));
+                    const bit = bitStream[bIdx];
+                    let sVal = 0;
+                    if (currentModType === 'AM') sVal = (1 + mu * mSin) * Math.cos(2 * Math.PI * fCarNorm * u) * 0.55;
+                    else if (currentModType === 'DSB') sVal = mSin * Math.cos(2 * Math.PI * fCarNorm * u);
+                    else if (currentModType === 'SSB') sVal = 0.7 * (mSin * Math.cos(2 * Math.PI * fCarNorm * u) - mHilb * Math.sin(2 * Math.PI * fCarNorm * u));
+                    else if (currentModType === 'FM') sVal = Math.cos(2 * Math.PI * fCarNorm * u + 4 * mu * Math.sin(2 * Math.PI * fMsgNorm * u));
+                    else if (currentModType === 'PM') sVal = Math.cos(2 * Math.PI * fCarNorm * u + 2.5 * mu * mSin);
+                    else if (currentModType === 'ASK') sVal = (bit ? 1.0 : 0.12) * Math.cos(2 * Math.PI * fCarNorm * u);
+                    else if (currentModType === 'BPSK') sVal = (bit ? 1.0 : -1.0) * Math.cos(2 * Math.PI * fCarNorm * u);
+                    else if (currentModType === 'FSK') sVal = Math.cos(2 * Math.PI * (bit ? fCarNorm * 1.45 : fCarNorm * 0.65) * u);
+                    else if (currentModType === 'QAM16') {
+                        const ampL = (bIdx % 2 === 0) ? 1.0 : 0.55;
+                        const ph = (bit ? 1 : -1) * (Math.PI / 4);
+                        sVal = ampL * Math.cos(2 * Math.PI * fCarNorm * u + ph);
+                    }
+                    const px = u * w, py = h / 2 - sVal * (h * 0.36);
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+
+            const scopeSpec = setupCanvas('canvasModSpectrum');
+            if (scopeSpec) {
+                const { ctx, w, h } = scopeSpec;
+                drawScopeGrid(ctx, w, h, w / 2, h * 0.84);
+                const cx = w / 2, baseY = h * 0.84;
+                const df = Math.max(18, (fm / 30) * (w * 0.22));
+
+                function drawSpike(x, hRatio, col, lbl) {
+                    const topY = baseY - hRatio * (h * 0.68);
+                    ctx.strokeStyle = col; ctx.lineWidth = 3.2;
+                    ctx.beginPath(); ctx.moveTo(x, baseY); ctx.lineTo(x, topY); ctx.stroke();
+                    ctx.fillStyle = col;
+                    ctx.beginPath(); ctx.arc(x, topY, 4.5, 0, 2 * Math.PI); ctx.fill();
+                    if (lbl) { ctx.font = '10px JetBrains Mono'; ctx.fillText(lbl, x - 12, baseY + 14); }
+                }
+
+                if (currentModType === 'AM') {
+                    drawSpike(cx, 0.9, '#FFD700', 'fc');
+                    drawSpike(cx - df, 0.45 * mu, '#00E5FF', 'LSB');
+                    drawSpike(cx + df, 0.45 * mu, '#00E5FF', 'USB');
+                } else if (currentModType === 'DSB') {
+                    drawSpike(cx - df, 0.78, '#00E5FF', 'fc-fm');
+                    drawSpike(cx + df, 0.78, '#00E5FF', 'fc+fm');
+                } else if (currentModType === 'SSB') {
+                    drawSpike(cx + df, 0.85, '#10B981', 'USB Only');
+                } else if (currentModType === 'FM' || currentModType === 'PM') {
+                    const numS = Math.min(6, Math.ceil(mu * 2.5) + 1);
+                    for (let n = -numS; n <= numS; n++) {
+                        const wt = Math.exp(-Math.abs(n) / (mu + 0.8));
+                        drawSpike(cx + n * (df * 0.55), wt * 0.82, n === 0 ? '#FFD700' : '#00E5FF', n === 0 ? 'fc' : '');
+                    }
+                } else {
+                    ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    for (let x = 0; x < w; x++) {
+                        const u = (x - cx) / (df * (currentModType === 'QAM16' ? 0.55 : 1.1));
+                        const s = Math.abs(sincFunc(u));
+                        const py = baseY - (s * s) * (h * 0.68);
+                        if (x === 0) ctx.moveTo(x, py); else ctx.lineTo(x, py);
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            const scopeConst = setupCanvas('canvasModConstellation');
+            if (scopeConst) {
+                const { ctx, w, h } = scopeConst;
+                const cx = w / 2, cy = h / 2, rad = Math.min(w, h) * 0.34;
+                drawScopeGrid(ctx, w, h, cx, cy);
+
+                let pts = [];
+                if (currentModType === 'BPSK' || currentModType === 'DSB') pts = [[-1, 0], [1, 0]];
+                else if (currentModType === 'ASK' || currentModType === 'AM') pts = [[0.15, 0], [1, 0]];
+                else if (currentModType === 'FSK' || currentModType === 'SSB') pts = [[1, 0], [0, 1]];
+                else if (currentModType === 'FM' || currentModType === 'PM') {
+                    ctx.strokeStyle = 'rgba(255, 215, 0, 0.45)'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 2 * Math.PI); ctx.stroke();
+                    for (let a = 0; a < 8; a++) pts.push([Math.cos(a * Math.PI / 4), Math.sin(a * Math.PI / 4)]);
+                } else if (currentModType === 'QAM16') {
+                    const lv = [-1, -0.33, 0.33, 1];
+                    lv.forEach(ix => lv.forEach(qy => pts.push([ix, qy])));
+                }
+
+                const nStd = Math.pow(10, -snr / 24) * 0.45;
+                pts.forEach(([ix, qy]) => {
+                    ctx.fillStyle = 'rgba(0, 229, 255, 0.45)';
+                    for (let k = 0; k < 10; k++) {
+                        const nx = ix + (Math.random() - 0.5) * 2 * nStd;
+                        const ny = qy + (Math.random() - 0.5) * 2 * nStd;
+                        ctx.beginPath(); ctx.arc(cx + nx * rad, cy - ny * rad, 2.2, 0, 2 * Math.PI); ctx.fill();
+                    }
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath(); ctx.arc(cx + ix * rad, cy - qy * rad, 4.5, 0, 2 * Math.PI); ctx.fill();
+                });
+            }
+        }
+
+        function playModulatedAudio() {
+            stopAllAudio();
+            initAudioContext();
+            const dur = 1.8, sr = audioCtx.sampleRate;
+            const buf = audioCtx.createBuffer(1, sr * dur, sr);
+            const data = buf.getChannelData(0);
+            const mu = parseFloat(document.getElementById('modIndexSlider').value) || 0.8;
+            const fCar = 600, fMsg = 6;
+            for (let i = 0; i < data.length; i++) {
+                const t = i / sr;
+                const m = Math.sin(2 * Math.PI * fMsg * t);
+                if (currentModType === 'AM' || currentModType === 'DSB') {
+                    data[i] = 0.25 * (1 + mu * m) * Math.sin(2 * Math.PI * fCar * t);
+                } else if (currentModType === 'FM' || currentModType === 'PM') {
+                    data[i] = 0.3 * Math.sin(2 * Math.PI * fCar * t + 18 * mu * Math.sin(2 * Math.PI * fMsg * t));
+                } else {
+                    const bit = Math.sin(2 * Math.PI * 5 * t) >= 0 ? 1 : -1;
+                    data[i] = 0.28 * Math.sin(2 * Math.PI * (fCar + (currentModType === 'FSK' ? bit * 180 : 0)) * t + (bit < 0 ? Math.PI : 0));
+                }
+            }
+            const src = audioCtx.createBufferSource();
+            src.buffer = buf; src.connect(audioCtx.destination); src.start();
+            setAudioStatusUI(true, `MODULATED CARRIER (${currentModType})`);
+            setTimeout(() => setAudioStatusUI(false), 1800);
+        }
+
+        /* =====================================================================
+           MODULE 06: BODE FILTER DESIGNER (WITH LIVE AUDIO) & CONVOLUTION
+           ===================================================================== */
+        let currentFilterType = 'LPF';
+        let convAutoTimer = null;
+
+        function setFilterType(type) {
+            currentFilterType = type;
+            document.querySelectorAll('.flt-btn').forEach(btn => {
+                btn.className = 'flt-btn px-3 py-2 rounded-xl bg-navy-900 text-slate-200 font-bold text-xs border border-white/15';
+            });
+            document.getElementById('flt-' + type).className = 'flt-btn px-3 py-2 rounded-xl bg-gold-500 text-navy-950 font-bold text-xs';
+            updateFilterPlot();
+        }
+
+        function updateFilterPlot() {
+            const approx = document.getElementById('filterApproxSelect').value;
+            const order = parseInt(document.getElementById('filterOrderSlider').value) || 4;
+            const fc = parseFloat(document.getElementById('filterCutoffSlider').value) || 600;
+
+            document.getElementById('filterOrderVal').textContent = order;
+            document.getElementById('filterCutoffVal').textContent = fc + ' Hz';
+            document.getElementById('filterSlopeBadge').textContent = `Roll-off: -${20 * order} dB/dec`;
+
+            // Update Live Web Audio Biquad Filter if playing
+            if (isFilterAudioPlaying && activeFilterNode && audioCtx) {
+                const mapType = { LPF: 'lowpass', HPF: 'highpass', BPF: 'bandpass', BSF: 'notch' };
+                activeFilterNode.type = mapType[currentFilterType] || 'lowpass';
+                activeFilterNode.frequency.setTargetAtTime(fc, audioCtx.currentTime, 0.02);
+                activeFilterNode.Q.setTargetAtTime(approx === 'chebyshev' ? 4.5 : 1.2, audioCtx.currentTime, 0.02);
+            }
+
+            const scope = setupCanvas('canvasBodePlot');
+            if (!scope) return;
+            const { ctx, w, h } = scope;
+            drawScopeGrid(ctx, w, h, 50, h * 0.25);
+
+            const xCut = 50 + (fc / 2500) * (w - 70);
+            ctx.strokeStyle = 'rgba(244, 63, 94, 0.65)';
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath(); ctx.moveTo(xCut, 0); ctx.lineTo(xCut, h); ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 2.8;
+            ctx.beginPath();
+            for (let i = 0; i < 300; i++) {
+                const f = 20 + (i / 299) * 2480;
+                let ratio = f / fc;
+                if (currentFilterType === 'HPF') ratio = fc / f;
+                else if (currentFilterType === 'BPF') ratio = Math.abs(f - fc) / (0.28 * fc);
+                else if (currentFilterType === 'BSF') ratio = (0.28 * fc) / Math.max(1, Math.abs(f - fc));
+
+                let mag = 1.0;
+                if (approx === 'butterworth') {
+                    mag = 1.0 / Math.sqrt(1 + Math.pow(ratio, 2 * order));
+                } else if (approx === 'chebyshev') {
+                    const eps = 0.45;
+                    const Tn = ratio <= 1 ? Math.cos(order * Math.acos(ratio)) : Math.cosh(order * Math.acosh(ratio));
+                    mag = 1.0 / Math.sqrt(1 + eps * eps * Tn * Tn);
+                } else {
+                    mag = ratio <= 1.0 ? 1.0 : 0.001;
+                }
+
+                const db = Math.max(-65, 20 * Math.log10(Math.max(1e-4, mag)));
+                const px = 50 + (i / 299) * (w - 70);
+                const py = h * 0.22 - (db / 65) * (h * 0.68);
+                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+
+            ctx.fillStyle = '#FFD700'; ctx.font = '11px JetBrains Mono';
+            ctx.fillText('0 dB Passband', 56, h * 0.20);
+            ctx.fillStyle = '#FB7185';
+            ctx.fillText(`Cutoff fc = ${fc} Hz (-3 dB)`, xCut + 6, h - 14);
+        }
+
+        function toggleLiveFilterAudio() {
+            if (isFilterAudioPlaying) {
+                stopAllAudio();
+                return;
+            }
+            stopAllAudio();
+            initAudioContext();
+            const fc = parseFloat(document.getElementById('filterCutoffSlider').value) || 600;
+            const mapType = { LPF: 'lowpass', HPF: 'highpass', BPF: 'bandpass', BSF: 'notch' };
+
+            activeOsc = audioCtx.createOscillator();
+            activeOsc.type = 'sawtooth'; // Rich harmonics across spectrum
+            activeOsc.frequency.setValueAtTime(160, audioCtx.currentTime);
+
+            activeFilterNode = audioCtx.createBiquadFilter();
+            activeFilterNode.type = mapType[currentFilterType] || 'lowpass';
+            activeFilterNode.frequency.setValueAtTime(fc, audioCtx.currentTime);
+            activeFilterNode.Q.setValueAtTime(2.0, audioCtx.currentTime);
+
+            activeGain = audioCtx.createGain();
+            activeGain.gain.setValueAtTime(0.28, audioCtx.currentTime);
+
+            activeOsc.connect(activeFilterNode);
+            activeFilterNode.connect(activeGain);
+            activeGain.connect(audioCtx.destination);
+            activeOsc.start();
+
+            isAudioPlaying = true;
+            isFilterAudioPlaying = true;
+            document.getElementById('btnLiveFilterAudio').innerHTML = '<i class="fa-solid fa-stop"></i><span>Stop Live Filtered Audio</span>';
+            setAudioStatusUI(true, `LIVE FILTER: ${currentFilterType} (fc=${fc}Hz)`);
+        }
+
+        function updateConvolution() {
+            const pair = document.getElementById('convPairSelect').value;
+            const tShift = parseFloat(document.getElementById('convTimeSlider').value) || 0;
+            document.getElementById('convTimeVal').textContent = `t = ${tShift.toFixed(2)} s`;
+
+            const scope = setupCanvas('canvasConvolution');
+            if (!scope) return;
+            const { ctx, w, h } = scope;
+            drawScopeGrid(ctx, w, h, w / 2, h * 0.42);
+
+            let xFn, hFn;
+            if (pair === 'rect_rect') {
+                xFn = (tau) => Math.abs(tau) <= 0.8 ? 1.0 : 0.0;
+                hFn = (tau) => Math.abs(tau) <= 0.8 ? 1.0 : 0.0;
+            } else if (pair === 'exp_step') {
+                xFn = (tau) => tau >= 0 ? 1.0 : 0.0;
+                hFn = (tau) => tau >= 0 ? Math.exp(-1.2 * tau) : 0.0;
+            } else if (pair === 'rect_exp') {
+                xFn = (tau) => (tau >= -0.5 && tau <= 1.0) ? 1.0 : 0.0;
+                hFn = (tau) => tau >= 0 ? Math.exp(-1.4 * tau) : 0.0;
+            } else {
+                xFn = (tau) => Math.abs(tau) <= 1.0 ? 1 - Math.abs(tau) : 0.0;
+                hFn = (tau) => Math.abs(tau) <= 0.7 ? 1.0 : 0.0;
+            }
+
+            const tauMin = -3.5, tauMax = 3.5, M = 280;
+            const dTau = (tauMax - tauMin) / M;
+            const topBaseY = h * 0.42, yScaleTop = h * 0.28;
+
+            ctx.fillStyle = 'rgba(16, 185, 129, 0.35)';
+            ctx.beginPath(); ctx.moveTo(0, topBaseY);
+            for (let i = 0; i <= M; i++) {
+                const tau = tauMin + i * dTau;
+                const prod = xFn(tau) * hFn(tShift - tau);
+                ctx.lineTo((i / M) * w, topBaseY - prod * yScaleTop);
+            }
+            ctx.lineTo(w, topBaseY); ctx.closePath(); ctx.fill();
+
+            ctx.strokeStyle = '#00E5FF'; ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            for (let i = 0; i <= M; i++) {
+                const tau = tauMin + i * dTau;
+                const px = (i / M) * w, py = topBaseY - xFn(tau) * yScaleTop;
+                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+
+            ctx.strokeStyle = '#F472B6'; ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            for (let i = 0; i <= M; i++) {
+                const tau = tauMin + i * dTau;
+                const px = (i / M) * w, py = topBaseY - hFn(tShift - tau) * yScaleTop;
+                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+
+            const botBaseY = h * 0.90, yScaleBot = h * 0.24;
+            ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.8;
+            ctx.beginPath();
+            for (let k = 0; k <= M; k++) {
+                const tEval = tauMin + k * dTau;
+                let area = 0;
+                for (let j = 0; j < M; j++) {
+                    const tau = tauMin + j * dTau;
+                    area += xFn(tau) * hFn(tEval - tau) * dTau;
+                }
+                const px = (k / M) * w, py = botBaseY - area * yScaleBot;
+                if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                if (Math.abs(tEval - tShift) < dTau * 0.8) {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(px - 3.5, py - 3.5, 7, 7);
+                }
+            }
+            ctx.stroke();
+
+            ctx.fillStyle = '#00E5FF'; ctx.font = '11px JetBrains Mono';
+            ctx.fillText('x(τ) Cyan | Folded & Shifted h(t-τ) Pink | Overlap Product Green', 12, 18);
+            ctx.fillStyle = '#FFD700';
+            ctx.fillText('y(t) = ∫ x(τ)h(t-τ)dτ Accumulated Convolution Output (Gold)', 12, h * 0.56);
+        }
+
+        function toggleConvAutoPlay() {
+            const btn = document.getElementById('btnConvPlay');
+            if (convAutoTimer) {
+                clearInterval(convAutoTimer);
+                convAutoTimer = null;
+                btn.innerHTML = '<i class="fa-solid fa-play mr-1"></i>Auto-Slide t';
+                return;
+            }
+            btn.innerHTML = '<i class="fa-solid fa-pause mr-1"></i>Pause Slide';
+            convAutoTimer = setInterval(() => {
+                const slider = document.getElementById('convTimeSlider');
+                let v = parseFloat(slider.value) + 0.06;
+                if (v > 3.5) v = -3.0;
+                slider.value = v.toFixed(2);
+                updateConvolution();
+            }, 40);
+        }
+
+        /* =====================================================================
+           WINDOW INITIALIZATION & RESPONSIVE RESIZE HANDLER
+           ===================================================================== */
+        window.addEventListener('load', () => {
+            updateCustomSignal();
+            drawFourierSpectrum();
+            animateFourierEpicycles();
+            setupPZMouseEvents();
+            updatePZAll();
+            updateSamplingLab();
+            updatePCMLab();
+            updateModulation();
+            updateFilterPlot();
+            updateConvolution();
+        });
+
+        window.addEventListener('resize', () => {
+            if (activeTab === 'tab-synth') updateCustomSignal();
+            if (activeTab === 'tab-fourier') drawFourierSpectrum();
+            if (activeTab === 'tab-laplace') updatePZAll();
+            if (activeTab === 'tab-sampling') { updateSamplingLab(); updatePCMLab(); }
+            if (activeTab === 'tab-modulation') updateModulation();
+            if (activeTab === 'tab-filters') { updateFilterPlot(); updateConvolution(); }
+        });
+    </script>
+</body>
+</html>
